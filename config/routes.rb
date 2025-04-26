@@ -70,6 +70,14 @@ Rails.application.routes.draw do
       delete "/resource_subscriptions/:id", to: "resource_subscriptions#destroy"
       get "/resource_subscriptions", to: "resource_subscriptions#index"
     end
+
+    # Add your new routes here
+    namespace :api do
+      namespace :internal do
+        resources :segments
+        resources :audience_member_filter_groups
+      end
+    end
   end
 
   def product_tracking_routes(named_routes: true)

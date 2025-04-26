@@ -264,6 +264,11 @@ class Installment < ApplicationRecord
 
   MEMBER_CANCELLATION_WORKFLOW_TRIGGER = "member_cancellation"
 
+  has_many :audience_member_filter_groups, as: :filterable, dependent: :destroy
+  has_and_belongs_to_many :segments
+
+  serialize :internal_tags, JSON
+
   def user
     seller.presence || link.user
   end
@@ -791,6 +796,47 @@ class Installment < ApplicationRecord
 
   def has_been_blasted? = blasts.exists?
   def can_be_blasted? = send_emails? && !has_been_blasted?
+
+  def audience_members_by_filter_groups
+    scope = AudienceMember.where(seller_id: seller_id)
+
+    # Get filter groups directly attached to this installment
+    direct_filter_groups = audience_member_filter_groups
+
+    # Get filter groups from segments
+    segment_filter_groups = segments.flat_map(&:audience_member_filter_groups)
+
+    # Combine all filter groups (OR logic between groups)
+    all_filter_groups = direct_filter_groups + segment_filter_groups
+    return scope if all_filter_groups.empty?
+
+    # Apply OR logic by getting all members that match ANY filter group
+    subqueries = all_filter_groups.map do |filter_group|
+      filter_group.filter(scope)
+    end
+
+    # Combine all results with OR logic
+    if subqueries.size == 1
+      subqueries.first
+    else
+      combined_ids = subqueries.map do |sq|
+        sq.pluck(:id)
+      end.flatten.uniq
+
+      scope.where(id: combined_ids)
+    end
+  end
+
+  def audience_members_filter
+    # Try filter groups first
+    if audience_member_filter_groups.any? || segments.any?
+      audience_members_by_filter_groups
+    else
+      # Fall back to legacy JSON attributes
+      params = audience_members_filter_params
+      AudienceMember.filter(seller_id: seller_id, params: params)
+    end
+  end
 
   class InstallmentInvalid < StandardError
   end

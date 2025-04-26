@@ -28,6 +28,9 @@ class Workflow < ApplicationRecord
 
   scope :published, -> { where.not(published_at: nil) }
 
+  has_many :audience_member_filter_groups, as: :filterable, dependent: :destroy
+  has_and_belongs_to_many :segments
+
   def recipient_type_audience?
     audience_type?
   end
@@ -111,5 +114,41 @@ class Workflow < ApplicationRecord
     end
 
     SendWorkflowPostEmailsJob.perform_async(installment.id, earliest_valid_time&.iso8601)
+  end
+
+  def audience_members_by_filter_groups
+    scope = AudienceMember.where(seller_id: seller_id)
+
+    # Get filter groups directly attached to this workflow
+    direct_filter_groups = audience_member_filter_groups
+
+    # Get filter groups from segments
+    segment_filter_groups = segments.flat_map(&:audience_member_filter_groups)
+
+    # Combine all filter groups (OR logic between groups)
+    all_filter_groups = direct_filter_groups + segment_filter_groups
+    return scope if all_filter_groups.empty?
+
+    # Apply OR logic by getting all members that match ANY filter group
+    subqueries = all_filter_groups.map do |filter_group|
+      filter_group.filter(scope).select(:id)
+    end
+
+    combined_ids = subqueries.map do |sq|
+      AudienceMember.from(sq).pluck(:id)
+    end.flatten.uniq
+
+    scope.where(id: combined_ids)
+  end
+
+  def audience_members_filter
+    # Try filter groups first
+    if audience_member_filter_groups.any? || segments.any?
+      audience_members_by_filter_groups
+    else
+      # Fall back to legacy JSON attributes
+      params = audience_members_filter_params
+      AudienceMember.filter(seller_id: seller_id, params: params)
+    end
   end
 end

@@ -109,6 +109,16 @@ module WithFiltering
   end
 
   def purchase_passes_filters(purchase)
+    # First check if we have filter groups
+    if respond_to?(:audience_member_filter_groups) && audience_member_filter_groups.any?
+      # Use filter groups to determine if purchase passes
+      audience_member = AudienceMember.find_by(purchase_id: purchase.id)
+      return false unless audience_member
+
+      return audience_members_by_filter_groups.exists?(audience_member.id)
+    end
+
+    # Fall back to legacy filtering
     params = purchase.slice(:email, :country, :ip_country)
     params[:min_created_at] = purchase.created_at
     params[:max_created_at] = purchase.created_at
@@ -172,5 +182,36 @@ module WithFiltering
 
   def convert_to_date(date)
     date.is_a?(String) ? Date.parse(date) : date
+  end
+
+  def audience_members_filter_params
+    # Existing method implementation
+    # Convert JSON attributes to filter params
+    # ...
+  end
+
+  def audience_members_by_filter_groups
+    scope = AudienceMember.where(seller_id: seller_id)
+
+    # Get filter groups directly attached to this model
+    direct_filter_groups = audience_member_filter_groups
+
+    # Get filter groups from segments
+    segment_filter_groups = segments.flat_map(&:audience_member_filter_groups)
+
+    # Combine all filter groups (OR logic between groups)
+    all_filter_groups = direct_filter_groups + segment_filter_groups
+    return scope if all_filter_groups.empty?
+
+    # Apply OR logic by getting all members that match ANY filter group
+    subqueries = all_filter_groups.map do |filter_group|
+      filter_group.filter(scope).select(:id)
+    end
+
+    combined_ids = subqueries.map do |sq|
+      AudienceMember.from(sq).pluck(:id)
+    end.flatten.uniq
+
+    scope.where(id: combined_ids)
   end
 end

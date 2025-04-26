@@ -1009,4 +1009,54 @@ const b = 2;</code></pre>
       end.to change { Iffy::Post::IngestJob.jobs.size }.by(1)
     end
   end
+
+  describe "preheader and internal_tags" do
+    it "stores and retrieves preheader" do
+      @installment.preheader = "Preview of this amazing update"
+      @installment.save
+      @installment.reload
+      expect(@installment.preheader).to eq("Preview of this amazing update")
+    end
+
+    it "stores and retrieves internal tags as an array" do
+      @installment.internal_tags = ["important", "featured"]
+      @installment.save
+      @installment.reload
+      expect(@installment.internal_tags).to eq(["important", "featured"])
+    end
+  end
+
+  describe "audience filtering" do
+    let(:audience_member_1) { create(:audience_member, seller: @creator, created_at: 1.day.ago) }
+    let(:audience_member_2) { create(:audience_member, seller: @creator, created_at: 3.days.ago) }
+
+    it "filters through its own filter groups" do
+      group = create(:audience_member_filter_group, filterable: @installment)
+      create(:audience_member_filter,
+             audience_member_filter_group: group,
+             filter_type: "date",
+             config: { "created_after" => 2.days.ago.iso8601 })
+
+      result = @installment.audience_members_filter
+
+      expect(result).to include(audience_member_1)
+      expect(result).not_to include(audience_member_2)
+    end
+
+    it "filters through segments" do
+      segment = create(:segment, seller: @creator)
+      @installment.segments << segment
+
+      group = create(:audience_member_filter_group, filterable: segment)
+      create(:audience_member_filter,
+             audience_member_filter_group: group,
+             filter_type: "date",
+             config: { "created_after" => 2.days.ago.iso8601 })
+
+      result = @installment.audience_members_filter
+
+      expect(result).to include(audience_member_1)
+      expect(result).not_to include(audience_member_2)
+    end
+  end
 end

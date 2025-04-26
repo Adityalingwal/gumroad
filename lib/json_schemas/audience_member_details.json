@@ -2,6 +2,20 @@
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
+    "follower": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "created_at"],
+      "additionalProperties": false
+    },
     "purchases": {
       "type": "array",
       "minItems": 1,
@@ -15,7 +29,8 @@
             "type": "string"
           },
           "created_at": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "product_id": {
             "type": "integer"
@@ -35,19 +50,6 @@
         "additionalProperties": false
       }
     },
-    "follower": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "integer"
-        },
-        "created_at": {
-          "type": "string"
-        }
-      },
-      "required": ["id", "created_at"],
-      "additionalProperties": false
-    },
     "affiliates": {
       "type": "array",
       "minItems": 1,
@@ -58,7 +60,8 @@
             "type": "integer"
           },
           "created_at": {
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           },
           "product_id": {
             "type": "integer"

@@ -1,0 +1,24 @@
+<!-- app/views/email_blaster_mailer/installment_email.html.erb -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= @installment.title %></title>
+</head>
+<body>
+  <!-- Preheader div (hidden) -->
+  <% if @installment.preheader.present? %>
+    <div style="display: none; max-height: 0px; overflow: hidden;">
+      <%= @installment.preheader %>
+      <!-- Add some extra characters to ensure the preheader text displays correctly -->
+      &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+    </div>
+  <% end %>
+
+  <!-- Rest of email content -->
+  <div class="email-content">
+    <!-- Existing email template content -->
+  </div>
+</body>
+</html>

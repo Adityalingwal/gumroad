@@ -26,6 +26,7 @@ import { DraftsTab } from "$app/components/server-components/EmailsPage/DraftsTa
 import { EmailForm } from "$app/components/server-components/EmailsPage/EmailForm";
 import { PublishedTab } from "$app/components/server-components/EmailsPage/PublishedTab";
 import { ScheduledTab } from "$app/components/server-components/EmailsPage/ScheduledTab";
+import { SegmentForm } from "$app/components/server-components/EmailsPage/SegmentForm";
 import { SegmentsTab } from "$app/components/server-components/EmailsPage/SegmentsTab";
 import { WithTooltip } from "$app/components/WithTooltip";
 
@@ -34,6 +35,8 @@ const TABS = ["published", "scheduled", "drafts", "subscribers", "segments"] as 
 export const emailTabPath = (tab: (typeof TABS)[number]) => `/emails/${tab}`;
 export const newEmailPath = "/emails/new";
 export const editEmailPath = (id: string) => `/emails/${id}/edit`;
+export const newSegmentPath = "/emails/segments/new";
+export const editSegmentPath = (id: string) => `/emails/segments/${id}/edit`;
 
 export const Layout = ({
   selectedTab,
@@ -55,31 +58,33 @@ export const Layout = ({
         <h1>Emails</h1>
 
         <div className="actions">
-          <Popover
-            open={isSearchPopoverOpen}
-            onToggle={setIsSearchPopoverOpen}
-            aria-label="Toggle Search"
-            trigger={
-              <WithTooltip tip="Search" position="bottom">
-                <div className="button">
-                  <Icon name="solid-search" />
-                </div>
-              </WithTooltip>
-            }
-          >
-            <div className="input">
-              <Icon name="solid-search" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search emails"
-                value={query}
-                onChange={(evt) => setQuery(evt.target.value)}
-              />
-            </div>
-          </Popover>
+          {selectedTab !== "segments" && (
+            <Popover
+              open={isSearchPopoverOpen}
+              onToggle={setIsSearchPopoverOpen}
+              aria-label="Toggle Search"
+              trigger={
+                <WithTooltip tip="Search" position="bottom">
+                  <div className="button">
+                    <Icon name="solid-search" />
+                  </div>
+                </WithTooltip>
+              }
+            >
+              <div className="input">
+                <Icon name="solid-search" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search emails"
+                  value={query}
+                  onChange={(evt) => setQuery(evt.target.value)}
+                />
+              </div>
+            </Popover>
+          )}
 
-          <NewEmailButton />
+          {selectedTab === "segments" ? <NewSegmentButton /> : <NewEmailButton />}
         </div>
 
         <div role="tablist">
@@ -118,6 +123,19 @@ export const NewEmailButton = ({ copyFrom }: { copyFrom?: string }) => {
       state={{ from }}
     >
       {copyFrom ? "Duplicate" : "New email"}
+    </Link>
+  );
+};
+
+export const NewSegmentButton = ({ copyFrom }: { copyFrom?: string }) => {
+  const { pathname: from } = useLocation();
+  return (
+    <Link
+      className={cx("button", { accent: !copyFrom })}
+      to={copyFrom ? `${newSegmentPath}?copy_from=${copyFrom}` : newSegmentPath}
+      state={{ from }}
+    >
+      {copyFrom ? "Duplicate" : "New segment"}
     </Link>
   );
 };
@@ -207,6 +225,14 @@ const routes: RouteObject[] = [
   {
     path: emailTabPath("segments"),
     element: <SegmentsTab />,
+  },
+  {
+    path: newSegmentPath,
+    element: <SegmentForm />,
+  },
+  {
+    path: editSegmentPath(":id"),
+    element: <SegmentForm isEdit />,
   },
   {
     path: newEmailPath,

@@ -334,4 +334,33 @@ describe Workflow do
       expect(@workflow.has_never_been_published?).to be(false)
     end
   end
+
+  describe "segment associations" do
+    it "can be associated with segments" do
+      segment = create(:segment, seller: @workflow.seller)
+      @workflow.segments << segment
+
+      @workflow.reload
+      expect(@workflow.segments).to include(segment)
+    end
+
+    it "filters audience members through segments" do
+      audience_member_1 = create(:audience_member, seller: @workflow.seller, created_at: 1.day.ago)
+      audience_member_2 = create(:audience_member, seller: @workflow.seller, created_at: 3.days.ago)
+
+      segment = create(:segment, seller: @workflow.seller)
+      @workflow.segments << segment
+
+      group = create(:audience_member_filter_group, filterable: segment)
+      create(:audience_member_filter,
+             audience_member_filter_group: group,
+             filter_type: "date",
+             config: { "created_after" => 2.days.ago.iso8601 })
+
+      result = @workflow.audience_members_filter
+
+      expect(result).to include(audience_member_1)
+      expect(result).not_to include(audience_member_2)
+    end
+  end
 end
