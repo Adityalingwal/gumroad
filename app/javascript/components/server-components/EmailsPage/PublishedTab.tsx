@@ -230,15 +230,40 @@ export const PublishedTab = () => {
                       : "n/a"}
                   </div>
                   <div>
-                    <h5>Views</h5>
+                    <h5>Bounced</h5>
+                    {formatStatNumber({
+                      value: selectedInstallment.view_count,
+                      placeholder: "n/a",
+                    })}
+                  </div>
+                  <div>
+                    <h5>Unsubscribers</h5>
+                    {formatStatNumber({
+                      value: selectedInstallment.view_count,
+                      placeholder: "n/a",
+                    })}
+                  </div>
+                  <div>
+                    <h5>Post Views</h5>
                     {formatStatNumber({
                       value: selectedInstallment.view_count,
                       placeholder: "n/a",
                     })}
                   </div>
                 </div>
-                <div style={{ display: "grid", gridAutoFlow: "column", gap: "var(--spacer-4)" }}>
-                  {selectedInstallment.send_emails ? <ViewEmailButton installment={selectedInstallment} /> : null}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "var(--spacer-4)",
+                    marginBottom: "var(--spacer-4)",
+                  }}
+                >
+                  <NavigationButton href={`/emails/${selectedInstallment.external_id}/recipients`}>
+                    <Icon name="people-fill" />
+                    View recipients
+                  </NavigationButton>
+                  <ViewEmailButton installment={selectedInstallment} />
                   {selectedInstallment.shown_on_profile ? (
                     <NavigationButton href={selectedInstallment.full_url} target="_blank" rel="noopener noreferrer">
                       <Icon name="file-earmark-medical-fill"></Icon>
