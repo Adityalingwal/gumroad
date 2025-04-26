@@ -6,6 +6,17 @@ class AudienceMemberFilterGroup < ApplicationRecord
   has_many :audience_member_filters, dependent: :destroy
 
   def self.filter(seller_id:, group_ids:)
+    # Normalize group_ids to an array of IDs
+    if group_ids.is_a?(AudienceMemberFilterGroup)
+      group_ids = [group_ids.id]
+    elsif group_ids.is_a?(ApplicationRecord)
+      group_ids = [group_ids.id]
+    elsif group_ids.is_a?(Array) && group_ids.first.is_a?(AudienceMemberFilterGroup)
+      group_ids = group_ids.map(&:id)
+    elsif !group_ids.is_a?(Array)
+      group_ids = [group_ids]
+    end
+
     groups = AudienceMemberFilterGroup.where(id: group_ids)
     return AudienceMember.where(seller_id: seller_id) if groups.empty?
 

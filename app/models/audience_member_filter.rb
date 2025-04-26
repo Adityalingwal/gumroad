@@ -8,6 +8,7 @@ class AudienceMemberFilter < ApplicationRecord
   validates :filter_type, presence: true
   validates :config, presence: true
   validate :validate_config_schema
+  validate :validate_date_range, if: -> { filter_type == "date" && config.present? }
 
   FILTER_TYPES = %w[date product payment location recipient].freeze
 
@@ -41,16 +42,20 @@ class AudienceMemberFilter < ApplicationRecord
 
   private
     def self.filter_by_date(scope, config)
-      if config["created_after"].present?
-        after_date = Time.zone.parse(config["created_after"])
-        scope = scope.where("audience_members.created_at >= ?", after_date)
+      after = config["created_after"]
+      before = config["created_before"]
+      if after.present? && before.present?
+        after_date = Time.zone.parse(after) rescue nil
+        before_date = Time.zone.parse(before) rescue nil
+        return scope.none unless after_date && before_date && before_date >= after_date
+        scope = scope.where("audience_members.created_at >= ? AND audience_members.created_at <= ?", after_date, before_date)
+      elsif after.present?
+        after_date = Time.zone.parse(after) rescue nil
+        scope = scope.where("audience_members.created_at >= ?", after_date) if after_date
+      elsif before.present?
+        before_date = Time.zone.parse(before) rescue nil
+        scope = scope.where("audience_members.created_at <= ?", before_date) if before_date
       end
-
-      if config["created_before"].present?
-        before_date = Time.zone.parse(config["created_before"])
-        scope = scope.where("audience_members.created_at <= ?", before_date)
-      end
-
       scope
     end
 
@@ -122,6 +127,19 @@ class AudienceMemberFilter < ApplicationRecord
 
       errors.each do |error|
         self.errors.add(:config, "#{error['data_pointer']}: #{error['schema_pointer']}")
+      end
+    end
+
+    def validate_date_range
+      return unless config.is_a?(Hash)
+      after = config["created_after"]
+      before = config["created_before"]
+      return unless after.present? && before.present?
+      after_time = Time.zone.parse(after) rescue nil
+      before_time = Time.zone.parse(before) rescue nil
+      return unless after_time && before_time
+      if before_time < after_time
+        errors.add(:config, "created_before must be after created_after")
       end
     end
 end

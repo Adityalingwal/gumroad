@@ -52,6 +52,17 @@ RSpec.describe AudienceMemberFilter, type: :model do
 
         expect(result).to include(audience_member)
       end
+
+      it "is invalid if created_before is before created_after" do
+        filter = build(:audience_member_filter,
+                       filter_type: "date",
+                       config: {
+                         "created_after" => 1.day.ago.iso8601,
+                         "created_before" => 2.days.ago.iso8601
+                       })
+        expect(filter).not_to be_valid
+        expect(filter.errors[:config]).to include("created_before must be after created_after")
+      end
     end
   end
 end
