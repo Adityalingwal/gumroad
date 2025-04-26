@@ -200,57 +200,114 @@ export const PublishedTab = () => {
                   <h2>{selectedInstallment.name}</h2>
                   <button className="close" aria-label="Close" onClick={() => setSelectedInstallmentId(null)} />
                 </header>
-                <div className="stack">
-                  <div>
-                    <h5>Sent</h5>
-                    {new Date(selectedInstallment.published_at).toLocaleString(userAgentInfo.locale, {
-                      timeZone: currentSeller.timeZone.name,
-                    })}
-                  </div>
-                  <div>
-                    <h5>Emailed</h5>
-                    {selectedInstallment.send_emails
-                      ? formatStatNumber({ value: selectedInstallment.sent_count })
-                      : "n/a"}
-                  </div>
-                  <div>
-                    <h5>Opened</h5>
-                    {selectedInstallment.send_emails
-                      ? selectedInstallment.open_rate !== null
-                        ? `${formatStatNumber({ value: selectedInstallment.open_count })} (${formatStatNumber({ value: selectedInstallment.open_rate, suffix: "%" })})`
-                        : formatStatNumber({ value: selectedInstallment.open_rate })
-                      : "n/a"}
-                  </div>
-                  <div>
-                    <h5>Clicks</h5>
-                    {selectedInstallment.send_emails
-                      ? selectedInstallment.click_rate !== null
-                        ? `${formatStatNumber({ value: selectedInstallment.click_count })} (${formatStatNumber({ value: selectedInstallment.click_rate, suffix: "%" })})`
-                        : formatStatNumber({ value: selectedInstallment.click_rate })
-                      : "n/a"}
-                  </div>
-                  <div>
-                    <h5>Bounced</h5>
-                    {formatStatNumber({
-                      value: selectedInstallment.view_count,
-                      placeholder: "n/a",
-                    })}
-                  </div>
-                  <div>
-                    <h5>Unsubscribers</h5>
-                    {formatStatNumber({
-                      value: selectedInstallment.view_count,
-                      placeholder: "n/a",
-                    })}
-                  </div>
-                  <div>
-                    <h5>Post Views</h5>
-                    {formatStatNumber({
-                      value: selectedInstallment.view_count,
-                      placeholder: "n/a",
-                    })}
-                  </div>
-                </div>
+                <table style={{ marginBottom: "var(--spacer-4)", width: "100%" }}>
+                  <tbody>
+                    <tr>
+                      <th style={{ textAlign: "left", width: "40%" }}>Sent</th>
+                      <td>
+                        {new Date(selectedInstallment.published_at).toLocaleString(userAgentInfo.locale, {
+                          timeZone: currentSeller.timeZone.name,
+                        })}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Emailed</th>
+                      <td>
+                        {selectedInstallment.send_emails
+                          ? formatStatNumber({ value: selectedInstallment.sent_count })
+                          : "n/a"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Opened</th>
+                      <td>
+                        {selectedInstallment.send_emails
+                          ? selectedInstallment.open_rate !== null
+                            ? `${formatStatNumber({ value: selectedInstallment.open_count })} (${formatStatNumber({ value: selectedInstallment.open_rate, suffix: "%" })})`
+                            : formatStatNumber({ value: selectedInstallment.open_rate })
+                          : "n/a"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Clicks</th>
+                      <td>
+                        {selectedInstallment.send_emails
+                          ? selectedInstallment.click_rate !== null
+                            ? `${formatStatNumber({ value: selectedInstallment.click_count })} (${formatStatNumber({ value: selectedInstallment.click_rate, suffix: "%" })})`
+                            : formatStatNumber({ value: selectedInstallment.click_rate })
+                          : "n/a"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Bounced</th>
+                      <td>4%</td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Unsubscribers</th>
+                      <td>8</td>
+                    </tr>
+                    <tr>
+                      <th style={{ textAlign: "left" }}>Post views</th>
+                      <td>1,929</td>
+                    </tr>
+                  </tbody>
+                </table>
+                {/* Dummy resend data for preview */}
+                {[
+                  {
+                    resent_at: "2025-02-23T12:15:00Z",
+                    subject: "ICYM - New bundle brushes ✨",
+                    sent_count: 8231,
+                    open_count: 120,
+                    open_rate: 32,
+                    click_count: 300,
+                    click_rate: 28,
+                    bounced: "2%",
+                    unsubscribers: 3,
+                    post_views: 900,
+                  },
+                ].map((resend, idx) => (
+                  <table key={idx} style={{ marginBottom: "var(--spacer-4)", width: "100%" }}>
+                    <tbody>
+                      <tr>
+                        <th style={{ textAlign: "left", width: "40%" }}>Resent</th>
+                        <td>
+                          {new Date(resend.resent_at).toLocaleString(userAgentInfo.locale, {
+                            timeZone: currentSeller.timeZone.name,
+                          })}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Subject</th>
+                        <td>{resend.subject}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Emailed</th>
+                        <td>{formatStatNumber({ value: resend.sent_count })}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Opened</th>
+                        <td>{`${formatStatNumber({ value: resend.open_count })} (${formatStatNumber({ value: resend.open_rate, suffix: "%" })})`}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Clicks</th>
+                        <td>{`${formatStatNumber({ value: resend.click_count })} (${formatStatNumber({ value: resend.click_rate, suffix: "%" })})`}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Bounced</th>
+                        <td>{resend.bounced}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Unsubscribers</th>
+                        <td>{resend.unsubscribers}</td>
+                      </tr>
+                      <tr>
+                        <th style={{ textAlign: "left" }}>Post views</th>
+                        <td>{formatStatNumber({ value: resend.post_views })}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                ))}
                 <div
                   style={{
                     display: "flex",
