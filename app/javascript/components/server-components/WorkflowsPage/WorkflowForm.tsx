@@ -432,6 +432,524 @@ const WorkflowForm = () => {
               </label>
             )}
           </fieldset>
+          <div style={{ marginBottom: "var(--spacer-4)" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "var(--spacer-3)",
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: "1rem", fontWeight: "normal" }}>Recipients</h3>
+              <Button small outline>
+                <Icon name="solid-star" />
+                Generate with AI
+              </Button>
+            </div>
+
+            <div style={{ marginBottom: "var(--spacer-3)" }}>
+              <select
+                style={{
+                  width: "100%",
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+                disabled={wasPublishedPreviously}
+                value="customers"
+              >
+                <option value="customers">Customers</option>
+              </select>
+            </div>
+          </div>
+
+          {/* First Filter Group */}
+          <div
+            style={{
+              border: "1px solid black",
+              borderRadius: "var(--border-radius)",
+              padding: "var(--spacer-4)",
+              marginBottom: "var(--spacer-3)",
+              background: "white",
+            }}
+          >
+            {/* Date Filter Row */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
+                gap: "var(--spacer-2)",
+                alignItems: "center",
+                marginBottom: "var(--spacer-3)",
+              }}
+            >
+              <div
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                }}
+              >
+                Where
+              </div>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>Date</option>
+              </select>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>Purchase</option>
+              </select>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>Is after</option>
+              </select>
+              <Button className="icon-only" small>
+                <Icon name="trash2" />
+              </Button>
+            </div>
+
+            <div style={{ marginBottom: "var(--spacer-3)" }}>
+              <input
+                type="date"
+                placeholder="dd/mm/yyyy"
+                style={{
+                  width: "100%",
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                }}
+                value={formState.afterDate}
+                onChange={(e) => updateFormState({ afterDate: e.target.value })}
+                disabled={wasPublishedPreviously}
+              />
+            </div>
+
+            {/* Product Filter Row */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
+                gap: "var(--spacer-2)",
+                alignItems: "center",
+                marginBottom: "var(--spacer-3)",
+              }}
+            >
+              <div
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                }}
+              >
+                And
+              </div>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>Product</option>
+              </select>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>Has bought</option>
+              </select>
+              <select
+                style={{
+                  padding: "var(--spacer-2) var(--spacer-3)",
+                  border: "1px solid black",
+                  borderRadius: "var(--border-radius)",
+                  background: "white",
+                  appearance: "none",
+                }}
+              >
+                <option>All</option>
+              </select>
+              <Button className="icon-only" small>
+                <Icon name="trash2" />
+              </Button>
+            </div>
+
+            {/* Product Tags */}
+            <div style={{ marginBottom: "var(--spacer-3)" }}>
+              <TagInput
+                placeholder="Any product"
+                isDisabled={wasPublishedPreviously}
+                tagIds={formState.bought}
+                tagList={selectableProductAndVariantOptions(context.products_and_variant_options, formState.bought)}
+                onChangeTagIds={(bought) => updateFormState({ bought })}
+              />
+            </div>
+
+            {/* Not Bought Filter Row */}
+            {triggerSupportsNotBoughtFilter ? (
+              <>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
+                    gap: "var(--spacer-2)",
+                    alignItems: "center",
+                    marginBottom: "var(--spacer-3)",
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: "var(--spacer-2) var(--spacer-3)",
+                      border: "1px solid black",
+                      borderRadius: "var(--border-radius)",
+                    }}
+                  >
+                    And
+                  </div>
+                  <select
+                    style={{
+                      padding: "var(--spacer-2) var(--spacer-3)",
+                      border: "1px solid black",
+                      borderRadius: "var(--border-radius)",
+                      background: "white",
+                      appearance: "none",
+                    }}
+                  >
+                    <option>Product</option>
+                  </select>
+                  <select
+                    style={{
+                      padding: "var(--spacer-2) var(--spacer-3)",
+                      border: "1px solid black",
+                      borderRadius: "var(--border-radius)",
+                      background: "white",
+                      appearance: "none",
+                    }}
+                  >
+                    <option>Has not yet bought</option>
+                  </select>
+                  <select
+                    style={{
+                      padding: "var(--spacer-2) var(--spacer-3)",
+                      border: "1px solid black",
+                      borderRadius: "var(--border-radius)",
+                      background: "white",
+                      appearance: "none",
+                    }}
+                  >
+                    <option>Any</option>
+                  </select>
+                  <Button className="icon-only" small>
+                    <Icon name="trash2" />
+                  </Button>
+                </div>
+
+                {/* Not Bought Tags */}
+                <div style={{ marginBottom: "var(--spacer-3)" }}>
+                  <div style={{ display: "flex", gap: "var(--spacer-2)", flexWrap: "wrap" }}>
+                    {formState.notBought.map((itemId) => {
+                      const item = context.products_and_variant_options.find(({ id }) => itemId === id);
+                      return item ? (
+                        <span
+                          key={itemId}
+                          style={{
+                            background: "black",
+                            color: "white",
+                            padding: "var(--spacer-1) var(--spacer-2)",
+                            borderRadius: "999px",
+                            fontSize: "0.875rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "var(--spacer-1)",
+                          }}
+                        >
+                          {item.label}
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "white",
+                              cursor: "pointer",
+                              padding: "0",
+                              lineHeight: "1",
+                            }}
+                            onClick={() =>
+                              updateFormState({ notBought: formState.notBought.filter((id) => id !== itemId) })
+                            }
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            {/* Add Filter Button */}
+            <Button
+              style={{
+                width: "100%",
+                border: "1px solid black",
+                background: "white",
+                color: "black",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "var(--spacer-2)",
+                padding: "var(--spacer-2)",
+              }}
+              disabled={wasPublishedPreviously}
+            >
+              <Icon name="plus" />
+              Add filter
+            </Button>
+          </div>
+
+          {/* OR Section - outside container */}
+          <div style={{ marginBottom: "var(--spacer-3)" }}>
+            <select
+              style={{
+                padding: "var(--spacer-2) var(--spacer-3)",
+                border: "1px solid black",
+                borderRadius: "var(--border-radius)",
+                background: "white",
+                appearance: "none",
+              }}
+              disabled={wasPublishedPreviously}
+              value="or"
+            >
+              <option value="or">Or</option>
+            </select>
+          </div>
+
+          {/* Second Filter Group - separate container */}
+          <div
+            style={{
+              border: "1px solid black",
+              borderRadius: "var(--border-radius)",
+              padding: "var(--spacer-4)",
+              marginBottom: "var(--spacer-4)",
+              background: "white",
+            }}
+          >
+            {triggerSupportsPaidFilters ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr auto",
+                  gap: "var(--spacer-2)",
+                  alignItems: "center",
+                  marginBottom: "var(--spacer-3)",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                  }}
+                >
+                  Where
+                </div>
+                <select
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                    background: "white",
+                    appearance: "none",
+                  }}
+                >
+                  <option>Payment</option>
+                </select>
+                <select
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                    background: "white",
+                    appearance: "none",
+                  }}
+                >
+                  <option>Is more than</option>
+                </select>
+                <Button className="icon-only" small>
+                  <Icon name="trash2" />
+                </Button>
+              </div>
+            ) : null}
+            <div
+              className={cx("input", { disabled: wasPublishedPreviously })}
+              style={{ marginBottom: "var(--spacer-3)" }}
+            >
+              <div className="pill" style={{ borderRight: "1px solid black" }}>
+                {context.currency_symbol}
+              </div>
+              <NumberInput
+                onChange={(paidMoreThan) => updateFormState({ paidMoreThan })}
+                value={formState.paidMoreThan}
+              >
+                {(inputProps) => (
+                  <input
+                    type="text"
+                    disabled={wasPublishedPreviously}
+                    autoComplete="off"
+                    placeholder="0"
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      padding: "var(--spacer-2)",
+                      width: "100%",
+                      background: "transparent",
+                    }}
+                    {...inputProps}
+                  />
+                )}
+              </NumberInput>
+            </div>
+
+            {triggerSupportsFromCountryFilter ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
+                  gap: "var(--spacer-2)",
+                  alignItems: "center",
+                  marginBottom: "var(--spacer-3)",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                  }}
+                >
+                  Or
+                </div>
+                <select
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                    background: "white",
+                    appearance: "none",
+                  }}
+                >
+                  <option>Location</option>
+                </select>
+                <select
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                    background: "white",
+                    appearance: "none",
+                  }}
+                >
+                  <option>Is</option>
+                </select>
+                <select
+                  style={{
+                    padding: "var(--spacer-2) var(--spacer-3)",
+                    border: "1px solid black",
+                    borderRadius: "var(--border-radius)",
+                    background: "white",
+                    appearance: "none",
+                  }}
+                  disabled={wasPublishedPreviously}
+                  value={formState.fromCountry}
+                  onChange={(e) => updateFormState({ fromCountry: e.target.value })}
+                >
+                  <option value="">United States</option>
+                  {context.countries.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
+                <Button className="icon-only" small>
+                  <Icon name="trash2" />
+                </Button>
+              </div>
+            ) : null}
+
+            {/* Add Filter Button for second group */}
+            <Button
+              style={{
+                width: "100%",
+                border: "1px solid black",
+                background: "white",
+                color: "black",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "var(--spacer-2)",
+                padding: "var(--spacer-2)",
+              }}
+              disabled={wasPublishedPreviously}
+            >
+              <Icon name="plus" />
+              Add filter
+            </Button>
+          </div>
+
+          {/* Add Filter Group Button - black background */}
+          <Button
+            style={{
+              width: "100%",
+              backgroundColor: "black",
+              color: "white",
+              border: "none",
+              padding: "var(--spacer-3)",
+              borderRadius: "var(--border-radius)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--spacer-2)",
+              marginBottom: "var(--spacer-4)",
+            }}
+            disabled={wasPublishedPreviously}
+          >
+            <Icon name="plus" />
+            Add filter group
+          </Button>
+
+          {/* Affiliated Products Section for New Affiliate Trigger */}
           {formState.trigger === "new_affiliate" ? (
             <fieldset>
               <legend>
@@ -473,181 +991,6 @@ const WorkflowForm = () => {
                   All products
                 </label>
               )}
-            </fieldset>
-          ) : null}
-          {triggerSupportsBoughtFilter ? (
-            <fieldset>
-              <legend>
-                <label htmlFor="bought">
-                  {formState.trigger === "member_cancels"
-                    ? "Is a member of"
-                    : formState.trigger === "abandoned_cart"
-                      ? "Has products in abandoned cart"
-                      : "Has bought"}
-                </label>
-              </legend>
-              <TagInput
-                inputId="bought"
-                placeholder="Any product"
-                isDisabled={wasPublishedPreviously}
-                tagIds={formState.bought}
-                tagList={selectableProductAndVariantOptions(context.products_and_variant_options, formState.bought)}
-                onChangeTagIds={(bought) => updateFormState({ bought })}
-              />
-              {formState.trigger === "abandoned_cart" ? (
-                <small>Leave this field blank to include all products</small>
-              ) : null}
-            </fieldset>
-          ) : null}
-          {triggerSupportsNotBoughtFilter ? (
-            <fieldset>
-              <legend>
-                <label htmlFor="not_bought">
-                  {formState.trigger === "abandoned_cart"
-                    ? "Does not have products in abandoned cart"
-                    : "Has not yet bought"}
-                </label>
-              </legend>
-              <TagInput
-                inputId="not_bought"
-                placeholder="No products"
-                isDisabled={wasPublishedPreviously}
-                tagIds={formState.notBought}
-                tagList={selectableProductAndVariantOptions(context.products_and_variant_options, formState.notBought)}
-                onChangeTagIds={(notBought) => updateFormState({ notBought })}
-                // Displayed as a multi-select for consistency, but supports only one option for now
-                maxTags={1}
-              />
-            </fieldset>
-          ) : null}
-          {triggerSupportsPaidFilters ? (
-            <div
-              style={{
-                display: "grid",
-                gap: "var(--spacer-3)",
-                gridTemplateColumns: "repeat(auto-fit, max(var(--dynamic-grid), 50% - var(--spacer-3) / 2))",
-              }}
-            >
-              <fieldset className={cx({ danger: invalidFields.has("paidMoreThan") })}>
-                <legend>
-                  <label htmlFor="paid_more_than">Paid more than</label>
-                </legend>
-                <NumberInput
-                  onChange={(paidMoreThan) => updateFormState({ paidMoreThan })}
-                  value={formState.paidMoreThan}
-                >
-                  {(inputProps) => (
-                    <div className={cx("input", { disabled: wasPublishedPreviously })}>
-                      <div className="pill">{context.currency_symbol}</div>
-                      <input
-                        id="paid_more_than"
-                        type="text"
-                        disabled={wasPublishedPreviously}
-                        ref={paidMoreThanInputRef}
-                        autoComplete="off"
-                        placeholder="0"
-                        {...inputProps}
-                      />
-                    </div>
-                  )}
-                </NumberInput>
-              </fieldset>
-              <fieldset className={cx({ danger: invalidFields.has("paidLessThan") })}>
-                <legend>
-                  <label htmlFor="paid_less_than">Paid less than</label>
-                </legend>
-                <NumberInput
-                  onChange={(paidLessThan) => updateFormState({ paidLessThan })}
-                  value={formState.paidLessThan}
-                >
-                  {(inputProps) => (
-                    <div className={cx("input", { disabled: wasPublishedPreviously })}>
-                      <div className="pill">{context.currency_symbol}</div>
-                      <input
-                        id="paid_less_than"
-                        type="text"
-                        disabled={wasPublishedPreviously}
-                        autoComplete="off"
-                        placeholder="∞"
-                        {...inputProps}
-                      />
-                    </div>
-                  )}
-                </NumberInput>
-              </fieldset>
-            </div>
-          ) : null}
-          {triggerSupportsDateFilters ? (
-            <div
-              style={{
-                display: "grid",
-                gap: "var(--spacer-3)",
-                gridTemplateColumns: "repeat(auto-fit, max(var(--dynamic-grid), 50% - var(--spacer-3) / 2))",
-              }}
-            >
-              <fieldset className={cx({ danger: invalidFields.has("afterDate") })}>
-                <legend>
-                  <label htmlFor="after_date">
-                    {formState.trigger === "new_subscriber"
-                      ? "Subscribed after"
-                      : formState.trigger === "member_cancels"
-                        ? "Canceled after"
-                        : formState.trigger === "new_affiliate"
-                          ? "Affiliate after"
-                          : "Purchased after"}
-                  </label>
-                </legend>
-                <input
-                  type="date"
-                  id="after_date"
-                  disabled={wasPublishedPreviously}
-                  ref={afterDateInputRef}
-                  value={formState.afterDate}
-                  onChange={(e) => updateFormState({ afterDate: e.target.value })}
-                />
-                <small>00:00 {context.timezone}</small>
-              </fieldset>
-              <fieldset className={cx({ danger: invalidFields.has("beforeDate") })}>
-                <legend>
-                  <label htmlFor="before_date">
-                    {formState.trigger === "new_subscriber"
-                      ? "Subscribed before"
-                      : formState.trigger === "member_cancels"
-                        ? "Canceled before"
-                        : formState.trigger === "new_affiliate"
-                          ? "Affiliate before"
-                          : "Purchased before"}
-                  </label>
-                </legend>
-                <input
-                  type="date"
-                  id="before_date"
-                  disabled={wasPublishedPreviously}
-                  value={formState.beforeDate}
-                  onChange={(e) => updateFormState({ beforeDate: e.target.value })}
-                />
-                <small>11:59 {context.timezone}</small>
-              </fieldset>
-            </div>
-          ) : null}
-          {triggerSupportsFromCountryFilter ? (
-            <fieldset>
-              <legend>
-                <label htmlFor="from_country">From</label>
-              </legend>
-              <select
-                id="from_country"
-                disabled={wasPublishedPreviously}
-                value={formState.fromCountry}
-                onChange={(e) => updateFormState({ fromCountry: e.target.value })}
-              >
-                <option value="">Anywhere</option>
-                {context.countries.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
             </fieldset>
           ) : null}
         </section>
