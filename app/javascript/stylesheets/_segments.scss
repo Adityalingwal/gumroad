@@ -69,22 +69,21 @@
       }
 
       [role="menuitem"] {
+        @extend %button;
         display: flex;
         align-items: center;
         width: 100%;
         gap: spacer(3);
         padding: spacer(3) spacer(4);
+        border: none;
+        border-radius: border-radius(1);
 
         > .icon {
           margin-right: 0;
         }
 
-        &.button--danger {
-          color: full-color(danger);
-
-          &:hover {
-            @include bg-color(danger);
-          }
+        &:hover {
+          background-color: var(--active-bg);
         }
       }
     }

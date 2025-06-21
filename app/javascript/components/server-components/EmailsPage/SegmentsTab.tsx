@@ -147,7 +147,7 @@ export const SegmentsTab: React.FC = () => {
                             </button>
                             <button
                               role="menuitem"
-                              className="button--danger"
+                              className="danger"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteSegment(segment.external_id);
