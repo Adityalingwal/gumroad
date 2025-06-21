@@ -1,18 +1,19 @@
 - Always use the latest version of Ruby, Rails, TypeScript, and React
 - Sentence case headers and buttons and stuff, not title case
 - Always write the code
-- Don’t leave comments in the code
-- Don’t apologize for errors, fix them
+- Don't leave comments in the code
+- Don't apologize for errors, fix them
 - Prefer re-using deprecated boolean flags (https://github.com/pboling/flag_shih_tzu) instead of creating new ones. Deprecated flags are named `DEPRECATED_<something>`. To re-use this flag you'll first need to reset the values for it on staging and production and then rename the flag to the new name. You can reset the flag like this:
-    
-    ```ruby
-    # flag to reset - `Link.DEPRECATED_stream_only`
-    Link.where(Link.DEPRECATED_stream_only_condition).find_in_batches do |batch|
-      ReplicaLagWatcher.watch
-      puts batch.first.id
-      Link.where(id: batch.map(&:id)).update_all(Link.set_flag_sql(:DEPRECATED_stream_only, false))
-    end
-    ```
+
+  ```ruby
+  # flag to reset - `Link.DEPRECATED_stream_only`
+  Link.where(Link.DEPRECATED_stream_only_condition).find_in_batches do |batch|
+    ReplicaLagWatcher.watch
+    puts batch.first.id
+    Link.where(id: batch.map(&:id)).update_all(Link.set_flag_sql(:DEPRECATED_stream_only, false))
+  end
+  ```
+
 - The Sidekiq queue names in decreasing order of priority are `critical`, `default`, `low`, and `mongo`. When creating a Sidekiq job select the lowest priority queue you think the job would be ok running in. Most queue latencies are good enough for background jobs. Unless the job is time-sensitive `low` is a good choice otherwise use `default`. The `critical` queue is reserved for receipt/purchase emails and you will almost never need to use it. `mongo` is sort of legacy and we only use it for one-time scripts/bulk migrations/internal tooling.
 - Use `import debounce from "lodash/debounce"` instead of `import { debounce } from "lodash"` because tree-shaking doesn't work well with Lodash. [[ref](https://github.com/gumroad/web/pull/15162)]
 - Use `product` instead of `link` in new code (in variable names, column names, comments, etc.)
@@ -20,17 +21,523 @@
 - New Sidekiq job class names should end with "Job". For example `ProcessBacklogJob`, `CalculateProfitJob`, etc.
 - Don't start Rspec test names with "should". See https://www.betterspecs.org/#should
 - Use `@example.com` for emails in tests
-- Use `example.com`,  [`example.org`](http://example.org), and [`example.net`](http://example.net) as custom domains or request hosts in tests.
+- Use `example.com`, [`example.org`](http://example.org), and [`example.net`](http://example.net) as custom domains or request hosts in tests.
 - Avoid `unless`
 - Use `buyer` and `seller` when naming variables instead of `customer` and `creator`
 - Don't create new files in `app/modules/` as it is a legacy location. Prefer creating concerns in the right directory instead (eg: `app/controllers/concerns/`, `app/models/concerns/`, etc.)
-- Avoid `to_not have_enqueued_sidekiq_job` or `not_to have_enqueued_sidekiq_job` because they're prone to false positives. Make assertions on  `SidekiqWorkerName.jobs.size` instead. See [comment in #20580 for details](https://github.com/gumroad/web/pull/20580#discussion_r716199137).
+- Avoid `to_not have_enqueued_sidekiq_job` or `not_to have_enqueued_sidekiq_job` because they're prone to false positives. Make assertions on `SidekiqWorkerName.jobs.size` instead. See [comment in #20580 for details](https://github.com/gumroad/web/pull/20580#discussion_r716199137).
 - Do not create methods ending in `_path` or `_url`. They might cause collisions with rails generated named route helpers in the future. Instead, use a module similar to `CustomDomainRouteBuilder` [[ref](https://github.com/gumroad/web/pull/12281#discussion_r352283892)]
 - Use feature flags for new features
 - Do not perform "backfilling" type of operations via ActiveRecord callbacks, whether you're enqueuing a job or not to create missing values. Use a Onetime task instead.
-    - This is because we have a lot of users, products, and data.
-    - Example: If you enqueue a backfilling job for each user upon them being updated, it's likely going to result in enqueuing millions of jobs in an uncontrollable way, potentially crashing Sidekiq (redis would be out of memory), and/or clogging the queues because each of these jobs takes "a few seconds" (= way too slow) and/or create massive uncontrollable replica lag, etc.
+  - This is because we have a lot of users, products, and data.
+  - Example: If you enqueue a backfilling job for each user upon them being updated, it's likely going to result in enqueuing millions of jobs in an uncontrollable way, potentially crashing Sidekiq (redis would be out of memory), and/or clogging the queues because each of these jobs takes "a few seconds" (= way too slow) and/or create massive uncontrollable replica lag, etc.
 - Use Nano IDs to generate external/public IDs for new models.
 - If you want to deduplicate a job (using sidekiq-unique-jobs), 99% of the time, you're looking for `lock: :until_executed`. It is fast because it works by maintaining a Redis Set of job digests: If a job digest is in this list (`O(1)`), running `perform_async` will be a noop and will return `nil`.
-Furthermore, you likely should **NOT** use `on_conflict: :replace`, because for it to remove an existing enqueued job, it needs to find it first, by scrolling through the Scheduled Set, which is CPU expensive and slow. It also means that `perform_async` will be as slow as the length of the queue, or fail entirely ⇒ you can break Sidekiq but just having one job like this enqueued too often.
+  Furthermore, you likely should **NOT** use `on_conflict: :replace`, because for it to remove an existing enqueued job, it needs to find it first, by scrolling through the Scheduled Set, which is CPU expensive and slow. It also means that `perform_async` will be as slow as the length of the queue, or fail entirely ⇒ you can break Sidekiq but just having one job like this enqueued too often.
 - Use scripts in the `app/services/onetime` folder
+
+# Gumroad SCSS System - Complete Reference Guide
+
+## SCSS Architecture Overview
+
+Gumroad uses a modular SCSS architecture with the following structure:
+
+- Foundation files: Core variables, mixins, and functions
+- Layout files: Page structure and spacing
+- Component files: Reusable UI components
+- Utility files: Helper classes and specific features
+
+---
+
+## FOUNDATION FILES (Core System)
+
+### \_definitions.scss - The Brain of SCSS System
+
+**Purpose:** Contains all core variables, functions, and mixins that power the entire design system.
+
+**Core Variables:**
+
+- `$spacers`: 8 spacing levels (0.25rem to 4rem)
+- `$font-sizes`: 5 font sizes (0.875rem to 2.5rem)
+- `$border-radii`: 4 border radius values (2px to 12px)
+- `$colors`: Brand color palette (pink, green, blue, etc.)
+- `$states`: UI state colors (primary, accent, danger, success)
+
+**Core Functions:**
+
+- `spacer($index)`: Returns spacing value. Usage: `spacer(4)` = `var(--spacer-4)` = 2rem
+- `font-size($index)`: Returns font size. Usage: `font-size(2)` = 1rem
+- `border-radius($index)`: Returns border radius. Usage: `border-radius(1)` = 4px
+- `size($multiplier)`: Multiplies base unit. Usage: `size(2)` = 2rem
+
+**Core Mixins:**
+
+- `@include bg-color($name)`: Sets background color. Usage: `@include bg-color(primary)`
+- `@include color($name)`: Sets text color. Usage: `@include color(white)`
+- `@include border-color($name)`: Sets border color
+- `@include font-size($index)`: Sets font size with line-height
+- `@include breakpoint-up($name)`: Media queries for responsive design
+
+**Usage Examples:**
+
+```scss
+.my-component {
+  padding: spacer(3); // 1rem padding
+  @include font-size(2); // 1rem font with proper line-height
+  @include bg-color(subtle); // Subtle background
+  border-radius: border-radius(1); // 4px border radius
+}
+```
+
+### \_colors.scss - Color System
+
+**Purpose:** Defines color palette and generates helper classes.
+
+**Available Classes:**
+
+- Background: `.bg-primary`, `.bg-accent`, `.bg-danger`, `.bg-success`, `.bg-subtle`, `.bg-filled`
+- Text: `.text-primary`, `.text-accent`, `.text-danger`, `.text-success`, `.text-muted`
+- Border: `.border-primary`, `.border-accent`, `.border-danger`
+
+**SCSS Usage:**
+
+```scss
+.error-box {
+  @include bg-color(danger);
+  @include color(white);
+  @include border-color(danger);
+}
+```
+
+### \_font.scss - Typography System
+
+**Purpose:** Font families, weights, and size helper classes.
+
+**Available Classes:**
+
+- Font sizes: `.font-size-1` to `.font-size-5`
+- Font weights: `.font-weight-normal`, `.font-weight-bold`
+
+**SCSS Usage:**
+
+```scss
+.heading {
+  @include font-size(4); // Large heading
+  font-weight: bold;
+}
+```
+
+---
+
+## LAYOUT FILES (Page Structure)
+
+### \_layout.scss - Page Structure
+
+**Purpose:** High-level page layout patterns.
+
+**Key Classes:**
+
+- `.with-sidebar`: Creates main content + sidebar layout
+- `.actions`: Button group container (usually in headers)
+- `main`, `header`, `section`: Base page structure styles
+
+**HTML Structure:**
+
+```html
+<main>
+  <header>
+    <h1>Title</h1>
+    <div class="actions">
+      <button>Save</button>
+      <button>Cancel</button>
+    </div>
+  </header>
+  <section>
+    <div class="with-sidebar">
+      <div>Main content</div>
+      <aside>Sidebar content</aside>
+    </div>
+  </section>
+</main>
+```
+
+### \_containers.scss - Content Containers
+
+**Purpose:** Content width and centering.
+
+**Key Classes:**
+
+- `.container`: Centers content with max-width
+- `.container--narrow`: Narrower container for forms
+- `.container--wide`: Wider container for dashboards
+
+### \_stack.scss - Vertical Spacing
+
+**Purpose:** Automatic vertical spacing between elements.
+
+**Key Classes:**
+
+- `.stack`: Adds consistent vertical gaps between child elements
+- `.stack--tight`: Smaller gaps
+- `.stack--loose`: Larger gaps
+
+**Usage:**
+
+```html
+<div class="stack">
+  <div>Item 1</div>
+  <div>Item 2</div>
+  <!-- Automatic spacing above this -->
+  <div>Item 3</div>
+  <!-- And this -->
+</div>
+```
+
+### \_grid.scss - Grid Layouts
+
+**Purpose:** CSS Grid-based layouts.
+
+**Key Variables:**
+
+- `--dynamic-grid`: Responsive grid column size
+- `--grid-gap`: Standard grid gap
+
+**Usage:**
+
+```scss
+.my-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--dynamic-grid), 1fr));
+  gap: spacer(4);
+}
+```
+
+---
+
+## COMPONENT FILES (Reusable UI)
+
+### \_button.scss - Button System
+
+**Purpose:** All button styles and variations.
+
+**Placeholders (use with @extend):**
+
+- `%button`: Base button styles (padding, border, cursor, etc.)
+- `%active-button`: Active/pressed state
+- `%disabled-button`: Disabled state
+
+**Classes:**
+
+- `.button`: Base button class
+- `.button--outline`: Outlined button variant
+- `.button--accent`: Accent color button
+- `.button--danger`: Danger/delete button
+- `.button--small`: Smaller button size
+- `.button--large`: Larger button size
+
+**Usage:**
+
+```scss
+.my-custom-button {
+  @extend %button;
+  @extend .button--accent;
+  // Add custom styles
+}
+```
+
+### \_forms.scss - Form Elements
+
+**Purpose:** All form input styling.
+
+**Placeholders:**
+
+- `%input`: Base input styles (text, email, password, etc.)
+- `%textarea`: Textarea styles
+- `%select`: Select dropdown styles
+- `%checkbox`: Checkbox styles
+- `%radio`: Radio button styles
+
+**Structure Classes:**
+
+- `fieldset`: Form section container
+- `legend`: Form section title
+- `label`: Input labels
+- `.danger`: Error state modifier
+
+**Usage:**
+
+```html
+<fieldset class="danger">
+  <legend>User Information</legend>
+  <label for="name">Name</label>
+  <input type="text" id="name" />
+</fieldset>
+```
+
+### \_table.scss - Table System
+
+**Purpose:** Data table styling.
+
+**Base Classes:**
+
+- `.table`: Base table styles
+- `thead`, `tbody`, `tr`, `th`, `td`: Automatic styling when inside `.table`
+
+**Usage:**
+
+```html
+<table class="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>John</td>
+      <td>john@example.com</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+### \_rows.scss - Table Row Enhancements
+
+**Purpose:** Interactive table row styles.
+
+**Placeholders:**
+
+- `%row--clickable`: Hover effects for clickable rows
+- `%row--selected`: Selected row highlighting
+- `%row--zebra`: Alternating row colors
+
+**Usage:**
+
+```scss
+.my-table tbody tr {
+  @extend %row--clickable;
+  @extend %row--zebra;
+
+  &.is-selected {
+    @extend %row--selected;
+  }
+}
+```
+
+### \_card.scss - Card Component
+
+**Purpose:** Content cards and panels.
+
+**Classes:**
+
+- `.card`: Base card with padding and border
+- `.card--raised`: Card with shadow
+- `.card--flat`: Card without border
+- `.card--interactive`: Hoverable card
+
+### \_alert.scss - Alert Messages
+
+**Purpose:** Notification and alert styling.
+
+**Classes:**
+
+- `.alert`: Base alert styles
+- `.alert--success`: Success message (green)
+- `.alert--danger`: Error message (red)
+- `.alert--warning`: Warning message (yellow)
+- `.alert--info`: Info message (blue)
+
+### \_dropdown.scss - Dropdown Menus
+
+**Purpose:** Dropdown and popover styling.
+
+**Classes:**
+
+- `.dropdown`: Base dropdown container
+- `.dropdown__trigger`: Dropdown trigger button
+- `.dropdown__menu`: Dropdown menu content
+- `.dropdown__item`: Individual menu items
+
+### \_tabs.scss - Tab Navigation
+
+**Purpose:** Tabbed navigation styling.
+
+**Classes:**
+
+- `.tabs`: Tab container
+- `.tabs__nav`: Tab navigation list
+- `.tabs__tab`: Individual tab
+- `.tabs__panel`: Tab content panel
+- `.tabs__tab--active`: Active tab state
+
+### \_placeholder.scss - Loading States
+
+**Purpose:** Empty states and loading placeholders.
+
+**Classes:**
+
+- `.placeholder`: Empty content area
+- `.placeholder--loading`: Loading animation
+- `.placeholder--small`: Smaller placeholder
+- `.placeholder--large`: Larger placeholder
+
+---
+
+## UTILITY FILES (Helpers & Specific Features)
+
+### \_tooltip.scss - Tooltips
+
+**Purpose:** Tooltip styling and positioning.
+
+**Classes:**
+
+- `.tooltip`: Base tooltip
+- `.tooltip--top`, `.tooltip--bottom`, `.tooltip--left`, `.tooltip--right`: Positioning
+
+### \_modal.scss - Modal Dialogs
+
+**Purpose:** Modal and dialog styling.
+
+**Classes:**
+
+- `.modal`: Modal overlay
+- `.modal__dialog`: Modal content container
+- `.modal__header`: Modal header with title
+- `.modal__body`: Modal content area
+- `.modal__footer`: Modal action buttons
+
+### \_nav.scss - Navigation
+
+**Purpose:** Main navigation and menu styling.
+
+**Classes:**
+
+- `.nav`: Base navigation
+- `.nav__item`: Navigation items
+- `.nav__link`: Navigation links
+- `.nav--horizontal`: Horizontal navigation
+- `.nav--vertical`: Vertical navigation
+
+### \_pagination.scss - Pagination
+
+**Purpose:** Page navigation controls.
+
+**Classes:**
+
+- `.pagination`: Pagination container
+- `.pagination__item`: Page number items
+- `.pagination__link`: Page links
+- `.pagination__item--active`: Current page
+- `.pagination__item--disabled`: Disabled state
+
+### \_separator.scss - Visual Separators
+
+**Purpose:** Dividers and separators.
+
+**Classes:**
+
+- `.separator`: Horizontal line separator
+- `.separator--vertical`: Vertical separator
+- `.separator--dashed`: Dashed line style
+
+---
+
+## SPECIALIZED FILES (Feature-Specific)
+
+### \_email.scss - Email Feature Styles
+
+**Purpose:** Email marketing page specific styles.
+
+**Classes:**
+
+- `.email-form`: Email creation form
+- `.email-preview`: Email preview container
+- `.email-stats`: Email statistics display
+
+### \_product.scss - Product Display
+
+**Purpose:** Product listing and detail styles.
+
+**Classes:**
+
+- `.product-card`: Product display card
+- `.product-grid`: Product grid layout
+- `.product-details`: Product detail page
+
+### \_stats.scss - Statistics Display
+
+**Purpose:** Charts and statistics styling.
+
+**Classes:**
+
+- `.stats`: Statistics container
+- `.stats__item`: Individual stat item
+- `.stats__value`: Stat value display
+- `.stats__label`: Stat label
+
+---
+
+## HOW TO CREATE NEW SCSS FILES
+
+When creating new SCSS files (like `_segments.scss`), follow this pattern:
+
+1. **Start with extending existing components:**
+
+```scss
+.segments-table {
+  @extend .table; // Use base table styles
+
+  tbody tr {
+    @extend %row--clickable; // Add hover effects
+    @extend %row--zebra; // Add alternating colors
+  }
+}
+```
+
+2. **Use the spacing and color system:**
+
+```scss
+.segments-form {
+  padding: spacer(4); // Use spacing function
+  @include bg-color(subtle); // Use color mixin
+  border-radius: border-radius(1); // Use border radius function
+}
+```
+
+3. **Follow BEM naming convention:**
+
+```scss
+.segments {
+  // Block
+  &__header {
+    // Element
+    // styles
+  }
+
+  &--loading {
+    // Modifier
+    // styles
+  }
+}
+```
+
+4. **Use nesting appropriately:**
+
+```scss
+.segments-page {
+  header {
+    // header styles
+
+    .actions {
+      // action buttons in header
+    }
+  }
+
+  .placeholder {
+    // empty state
+  }
+}
+```
+
+This reference covers all major SCSS files in Gumroad's system. Use this as a guide when creating new styles or modifying existing ones.
