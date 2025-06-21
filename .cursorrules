@@ -382,6 +382,44 @@ Gumroad uses a modular SCSS architecture with the following structure:
 - `.placeholder--small`: Smaller placeholder
 - `.placeholder--large`: Larger placeholder
 
+### \_pill.scss - Pill Component
+
+**Purpose:** Small, capsule-like UI elements used for tags, filters, or status indicators.
+
+**Base Class:**
+
+- `.pill`: Default pill with rounded corners and padding.
+
+**Modifier Classes:**
+
+- `.pill.small`: Smaller version with less padding.
+- `.pill.accent`, `.pill.danger`, etc.: Applies brand colors.
+- `.pill.dismissable`: Adds an 'X' icon, for removing filters/tags.
+- `.pill.expandable`: Adds a dropdown arrow, for menus.
+- `.pill.select`: Styles a native `<select>` to look like a pill, great for accessible dropdowns.
+
+**Usage:**
+
+```html
+<!-- Base Pill -->
+<span class="pill">Active</span>
+
+<!-- Colored Pill -->
+<span class="pill accent">New</span>
+
+<!-- Dismissable Pill -->
+<button class="pill dismissable">Filter: Red</button>
+
+<!-- Select Pill -->
+<div class="pill select">
+  <span>Sort By</span>
+  <select>
+    <option>Date</option>
+    <option>Price</option>
+  </select>
+</div>
+```
+
 ---
 
 ## UTILITY FILES (Helpers & Specific Features)
