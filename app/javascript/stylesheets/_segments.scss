@@ -1,0 +1,210 @@
+.segments-page {
+  .segments-table {
+    display: grid;
+    gap: spacer(4);
+
+    & > thead {
+      display: none;
+    }
+
+    & > tbody > tr {
+      display: block;
+      border: $border;
+      border-radius: border-radius(1);
+      @include bg-color(filled);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--active-bg);
+      }
+
+      &[aria-selected="true"] {
+        @include bg-color(accent);
+      }
+    }
+
+    & > tbody > tr > td {
+      display: block;
+      padding: spacer(4);
+
+      &:not(:last-child) {
+        border-bottom: $border;
+      }
+
+      &[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: spacer(2);
+      }
+    }
+
+    @include breakpoint-up(lg) {
+      &,
+      & > thead,
+      & > tbody,
+      & > tbody > tr,
+      & > tbody > tr > td {
+        display: revert;
+        border-radius: 0;
+      }
+
+      & > thead {
+        display: table-header-group;
+
+        th {
+          padding: spacer(3) spacer(4);
+          text-align: left;
+          font-weight: bold;
+          border-bottom: $border;
+          @include font-size(1);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+      }
+
+      & > tbody {
+        tr {
+          border: none;
+          &:not(:last-child) {
+            border-bottom: $border;
+          }
+        }
+        td {
+          border: none;
+          padding: spacer(4);
+          vertical-align: middle;
+
+          &::before {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .segments-placeholder {
+    @extend .placeholder;
+    padding: spacer(8);
+
+    h2 {
+      @include font-size(4);
+    }
+
+    p {
+      @include text-muted;
+    }
+  }
+
+  aside.segment-detail-sidebar {
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: spacer(5);
+      border-bottom: $border;
+
+      h2 {
+        @include font-size(3);
+      }
+    }
+
+    .stack {
+      padding: spacer(5);
+      gap: spacer(5);
+    }
+  }
+
+  .segment-filters {
+    .filter-area {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: spacer(6);
+      border: $border-width dashed $border-color;
+      border-radius: border-radius(1);
+      @include bg-color(filled);
+      gap: spacer(4);
+
+      .add-filter-button {
+        @extend %button;
+        @include bg-color(accent);
+
+        &:hover {
+          @extend %active-button;
+        }
+      }
+
+      .filter-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: spacer(2);
+        @include bg-color(filled);
+        border: $border;
+        border-radius: border-radius(1);
+        box-shadow: box-shadow(2);
+        z-index: z-index(overlay);
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            display: flex;
+            align-items: center;
+            gap: spacer(2);
+            padding: spacer(2) spacer(3);
+            cursor: pointer;
+
+            &:hover {
+              background-color: var(--active-bg);
+            }
+          }
+        }
+      }
+
+      .help-text {
+        text-align: center;
+        @include font-size(1);
+        @include text-muted;
+      }
+    }
+  }
+
+  .menu {
+    @include bg-color(filled);
+    border: $border;
+    border-radius: border-radius(1);
+    box-shadow: box-shadow(2);
+    padding: spacer(1);
+
+    button {
+      all: unset;
+      display: flex;
+      align-items: center;
+      gap: spacer(2);
+      width: 100%;
+      padding: spacer(2) spacer(3);
+      cursor: pointer;
+      border-radius: border-radius(1);
+
+      &:hover {
+        background-color: var(--active-bg);
+      }
+
+      &.danger {
+        color: full-color(danger);
+
+        &:hover {
+          @include bg-color(danger);
+        }
+      }
+    }
+  }
+}
