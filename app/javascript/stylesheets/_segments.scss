@@ -1,209 +1,222 @@
 .segments-page {
-  .segments-table {
-    display: grid;
-    gap: spacer(4);
+  padding: spacer(6) spacer(8);
+}
 
-    & > thead {
-      display: none;
-    }
+.segments-table {
+  @extend .table !optional;
 
-    & > tbody > tr {
-      display: block;
-      border: $border;
-      border-radius: border-radius(1);
-      @include bg-color(filled);
-      cursor: pointer;
-      transition: background-color 0.2s ease;
+  @include breakpoint-up(lg) {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
 
-      &:hover {
-        background-color: var(--active-bg);
-      }
-
-      &[aria-selected="true"] {
-        @include bg-color(accent);
-      }
-    }
-
-    & > tbody > tr > td {
-      display: block;
+    th,
+    td {
       padding: spacer(4);
-
-      &:not(:last-child) {
-        border-bottom: $border;
-      }
-
-      &[data-label]::before {
-        content: attr(data-label);
-        display: block;
-        font-weight: bold;
-        margin-bottom: spacer(2);
-      }
+      vertical-align: middle;
+      text-align: left;
     }
 
-    @include breakpoint-up(lg) {
-      &,
-      & > thead,
-      & > tbody,
-      & > tbody > tr,
-      & > tbody > tr > td {
-        display: revert;
-        border-radius: 0;
+    thead th {
+      font-weight: bold;
+      @include font-size(1);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: gray(3);
+    }
+
+    tbody td {
+      border-bottom: $border;
+    }
+
+    tbody tr:first-child td {
+      border-top: $border;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody td:first-child {
+      border-left: $border;
+    }
+
+    tbody td:last-child {
+      border-right: $border;
+    }
+
+    tbody tr:first-child td:first-child {
+      border-top-left-radius: border-radius(1);
+    }
+    tbody tr:first-child td:last-child {
+      border-top-right-radius: border-radius(1);
+    }
+    tbody tr:last-child td:first-child {
+      border-bottom-left-radius: border-radius(1);
+    }
+    tbody tr:last-child td:last-child {
+      border-bottom-right-radius: border-radius(1);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: spacer(3);
+      position: relative;
+
+      [role="menu"] {
+        min-width: size(12);
       }
 
-      & > thead {
-        display: table-header-group;
+      [role="menuitem"] {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: spacer(3);
+        padding: spacer(3) spacer(4);
 
-        th {
-          padding: spacer(3) spacer(4);
-          text-align: left;
-          font-weight: bold;
-          border-bottom: $border;
-          @include font-size(1);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-      }
-
-      & > tbody {
-        tr {
-          border: none;
-          &:not(:last-child) {
-            border-bottom: $border;
-          }
-        }
-        td {
-          border: none;
-          padding: spacer(4);
-          vertical-align: middle;
-
-          &::before {
-            display: none;
-          }
+        > .icon {
+          margin-right: 0;
         }
       }
     }
   }
+}
 
-  .segments-placeholder {
-    @extend .placeholder;
-    padding: spacer(8);
+.segments-placeholder {
+  @extend .placeholder !optional;
+  padding: spacer(8);
+  text-align: center;
+
+  h2 {
+    @include font-size(4);
+    margin-bottom: spacer(4);
+  }
+
+  p {
+    @include text-muted;
+    margin-bottom: spacer(6);
+  }
+}
+
+aside.segment-detail-sidebar {
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: spacer(5);
+    border-bottom: $border;
 
     h2 {
-      @include font-size(4);
+      @include font-size(3);
+    }
+  }
+
+  .stack {
+    padding: spacer(5);
+    gap: spacer(5);
+  }
+}
+
+.segment-filters {
+  .filter-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: spacer(6);
+    border: $border-width dashed $border-color;
+    border-radius: border-radius(1);
+    @include bg-color(filled);
+    gap: spacer(4);
+
+    .add-filter-button {
+      // Button styles
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: spacer(3) spacer(4);
+      border: none;
+      border-radius: border-radius(1);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+      @include font-size(2);
+      @include bg-color(accent);
+      color: white;
+
+      &:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
     }
 
-    p {
+    .filter-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: spacer(2);
+      @include bg-color(filled);
+      border: $border;
+      border-radius: border-radius(1);
+      box-shadow: box-shadow(2);
+      z-index: z-index(overlay);
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          display: flex;
+          align-items: center;
+          gap: spacer(2);
+          padding: spacer(2) spacer(3);
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--active-bg);
+          }
+        }
+      }
+    }
+
+    .help-text {
+      text-align: center;
+      @include font-size(1);
       @include text-muted;
     }
   }
+}
 
-  aside.segment-detail-sidebar {
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: spacer(5);
-      border-bottom: $border;
+.menu {
+  @include bg-color(filled);
+  border: $border;
+  border-radius: border-radius(1);
+  box-shadow: box-shadow(2);
+  padding: spacer(1);
 
-      h2 {
-        @include font-size(3);
-      }
-    }
-
-    .stack {
-      padding: spacer(5);
-      gap: spacer(5);
-    }
-  }
-
-  .segment-filters {
-    .filter-area {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: spacer(6);
-      border: $border-width dashed $border-color;
-      border-radius: border-radius(1);
-      @include bg-color(filled);
-      gap: spacer(4);
-
-      .add-filter-button {
-        @extend %button;
-        @include bg-color(accent);
-
-        &:hover {
-          @extend %active-button;
-        }
-      }
-
-      .filter-dropdown {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        margin-top: spacer(2);
-        @include bg-color(filled);
-        border: $border;
-        border-radius: border-radius(1);
-        box-shadow: box-shadow(2);
-        z-index: z-index(overlay);
-
-        ul {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-
-          li {
-            display: flex;
-            align-items: center;
-            gap: spacer(2);
-            padding: spacer(2) spacer(3);
-            cursor: pointer;
-
-            &:hover {
-              background-color: var(--active-bg);
-            }
-          }
-        }
-      }
-
-      .help-text {
-        text-align: center;
-        @include font-size(1);
-        @include text-muted;
-      }
-    }
-  }
-
-  .menu {
-    @include bg-color(filled);
-    border: $border;
+  button {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: spacer(2);
+    width: 100%;
+    padding: spacer(2) spacer(3);
+    cursor: pointer;
     border-radius: border-radius(1);
-    box-shadow: box-shadow(2);
-    padding: spacer(1);
 
-    button {
-      all: unset;
-      display: flex;
-      align-items: center;
-      gap: spacer(2);
-      width: 100%;
-      padding: spacer(2) spacer(3);
-      cursor: pointer;
-      border-radius: border-radius(1);
+    &:hover {
+      background-color: var(--active-bg);
+    }
+
+    &.danger {
+      color: full-color(danger);
 
       &:hover {
-        background-color: var(--active-bg);
-      }
-
-      &.danger {
-        color: full-color(danger);
-
-        &:hover {
-          @include bg-color(danger);
-        }
+        @include bg-color(danger);
       }
     }
   }

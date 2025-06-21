@@ -1,10 +1,11 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { Button } from "$app/components/Button";
 import { Icon } from "$app/components/Icons";
 import { Popover } from "$app/components/Popover";
 import { showAlert } from "$app/components/server-components/Alert";
-import { Layout, NewSegmentButton } from "$app/components/server-components/EmailsPage";
+import { Layout, NewSegmentButton, editSegmentPath } from "$app/components/server-components/EmailsPage";
 
 type Segment = {
   external_id: string;
@@ -77,9 +78,9 @@ export const SegmentsTab: React.FC = () => {
 
   return (
     <Layout selectedTab="segments">
-      <div className="segments-container px-8 py-6">
+      <div className="segments-page">
         {segments.length > 0 ? (
-          <table className="min-w-full">
+          <table className="segments-table" aria-label="Segments">
             <thead>
               <tr>
                 <th>Name</th>
@@ -88,6 +89,7 @@ export const SegmentsTab: React.FC = () => {
                 <th>Audience</th>
                 <th>Opens</th>
                 <th>Clicks</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -106,61 +108,58 @@ export const SegmentsTab: React.FC = () => {
                     <td>{segment.opens_rate}%</td>
                     <td>{segment.clicks_rate}%</td>
                     <td className="actions">
-                      <div className="buttons">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.location.href = `/emails/segments/${segment.external_id}/edit`;
-                          }}
-                          style={{ marginRight: "10px" }}
-                          title="Edit segment"
-                        >
-                          <Icon name="pencil" />
-                        </Button>
-                        <Popover
-                          open={openPopoverId === segment.external_id}
-                          onToggle={(open) => setOpenPopoverId(open ? segment.external_id : null)}
-                          trigger={
-                            <Button
+                      <Link
+                        to={editSegmentPath(segment.external_id)}
+                        onClick={(e) => e.stopPropagation()}
+                        title="Edit segment"
+                        className="button"
+                      >
+                        <Icon name="pencil" />
+                      </Link>
+                      <Popover
+                        open={openPopoverId === segment.external_id}
+                        onToggle={(open) => setOpenPopoverId(open ? segment.external_id : null)}
+                        trigger={
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenPopoverId(openPopoverId === segment.external_id ? null : segment.external_id);
+                            }}
+                            title="More actions"
+                          >
+                            <Icon name="three-dots" />
+                          </Button>
+                        }
+                        position="bottom"
+                      >
+                        {(close) => (
+                          <div role="menu">
+                            <button
+                              role="menuitem"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setOpenPopoverId(openPopoverId === segment.external_id ? null : segment.external_id);
+                                handleDuplicateSegment(segment);
+                                close();
                               }}
-                              title="More actions"
                             >
-                              <Icon name="three-dots" />
-                            </Button>
-                          }
-                          position="bottom"
-                        >
-                          {(close) => (
-                            <>
-                              <button
-                                className="popover-action"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDuplicateSegment(segment);
-                                  close();
-                                }}
-                              >
-                                <Icon name="outline-duplicate" style={{ width: "20px", height: "20px" }} />
-                                Duplicate
-                              </button>
-                              <button
-                                className="popover-action danger"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteSegment(segment.external_id);
-                                  close();
-                                }}
-                              >
-                                <Icon name="trash2" style={{ width: "20px", height: "20px" }} />
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </Popover>
-                      </div>
+                              <Icon name="outline-duplicate" />
+                              Duplicate
+                            </button>
+                            <button
+                              role="menuitem"
+                              className="danger"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteSegment(segment.external_id);
+                                close();
+                              }}
+                            >
+                              <Icon name="trash2" />
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </Popover>
                     </td>
                   </tr>
                 );
@@ -210,15 +209,9 @@ export const SegmentsTab: React.FC = () => {
                   </div>
 
                   <div className="actions">
-                    <Button
-                      color="primary"
-                      onClick={() => {
-                        window.location.href = `/emails/segments/${segment.external_id}/edit`;
-                      }}
-                    >
+                    <Link to={editSegmentPath(segment.external_id)} className="button button--primary">
                       Edit segment
-                    </Button>
-
+                    </Link>
                     <Button color="danger" onClick={() => handleDeleteSegment(segment.external_id)}>
                       Delete segment
                     </Button>
