@@ -3,18 +3,51 @@
 }
 
 .segments-table {
-  @extend .table !optional;
+  @extend .table;
 
   @include breakpoint-up(lg) {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
+    tbody tr {
+      @extend %row--clickable !optional;
 
-    th,
-    td {
-      padding: spacer(4);
-      vertical-align: middle;
-      text-align: left;
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    tbody td {
+      border-bottom: $border;
+
+      &:first-child {
+        border-left: $border;
+      }
+
+      &:last-child {
+        border-right: $border;
+      }
+    }
+
+    tbody tr:first-child td {
+      border-top: $border;
+
+      &:first-child {
+        border-top-left-radius: border-radius(1);
+      }
+
+      &:last-child {
+        border-top-right-radius: border-radius(1);
+      }
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+
+      &:first-child {
+        border-bottom-left-radius: border-radius(1);
+      }
+
+      &:last-child {
+        border-bottom-right-radius: border-radius(1);
+      }
     }
 
     thead th {
@@ -23,39 +56,6 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: gray(3);
-    }
-
-    tbody td {
-      border-bottom: $border;
-    }
-
-    tbody tr:first-child td {
-      border-top: $border;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    tbody td:first-child {
-      border-left: $border;
-    }
-
-    tbody td:last-child {
-      border-right: $border;
-    }
-
-    tbody tr:first-child td:first-child {
-      border-top-left-radius: border-radius(1);
-    }
-    tbody tr:first-child td:last-child {
-      border-top-right-radius: border-radius(1);
-    }
-    tbody tr:last-child td:first-child {
-      border-bottom-left-radius: border-radius(1);
-    }
-    tbody tr:last-child td:last-child {
-      border-bottom-right-radius: border-radius(1);
     }
 
     .actions {
@@ -78,13 +78,21 @@
         > .icon {
           margin-right: 0;
         }
+
+        &.button--danger {
+          color: full-color(danger);
+
+          &:hover {
+            @include bg-color(danger);
+          }
+        }
       }
     }
   }
 }
 
 .segments-placeholder {
-  @extend .placeholder !optional;
+  @extend .placeholder;
   padding: spacer(8);
   text-align: center;
 
@@ -99,7 +107,7 @@
   }
 }
 
-aside.segment-detail-sidebar {
+.segment-detail-sidebar {
   header {
     display: flex;
     justify-content: space-between;
@@ -118,106 +126,8 @@ aside.segment-detail-sidebar {
   }
 }
 
-.segment-filters {
-  .filter-area {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: spacer(6);
-    border: $border-width dashed $border-color;
-    border-radius: border-radius(1);
-    @include bg-color(filled);
-    gap: spacer(4);
+// Segment filters - placeholder for future filter functionality
+// Currently not implemented in the component
 
-    .add-filter-button {
-      // Button styles
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: spacer(3) spacer(4);
-      border: none;
-      border-radius: border-radius(1);
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: 500;
-      @include font-size(2);
-      @include bg-color(accent);
-      color: white;
-
-      &:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-      }
-    }
-
-    .filter-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: spacer(2);
-      @include bg-color(filled);
-      border: $border;
-      border-radius: border-radius(1);
-      box-shadow: box-shadow(2);
-      z-index: z-index(overlay);
-
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-
-        li {
-          display: flex;
-          align-items: center;
-          gap: spacer(2);
-          padding: spacer(2) spacer(3);
-          cursor: pointer;
-
-          &:hover {
-            background-color: var(--active-bg);
-          }
-        }
-      }
-    }
-
-    .help-text {
-      text-align: center;
-      @include font-size(1);
-      @include text-muted;
-    }
-  }
-}
-
-.menu {
-  @include bg-color(filled);
-  border: $border;
-  border-radius: border-radius(1);
-  box-shadow: box-shadow(2);
-  padding: spacer(1);
-
-  button {
-    all: unset;
-    display: flex;
-    align-items: center;
-    gap: spacer(2);
-    width: 100%;
-    padding: spacer(2) spacer(3);
-    cursor: pointer;
-    border-radius: border-radius(1);
-
-    &:hover {
-      background-color: var(--active-bg);
-    }
-
-    &.danger {
-      color: full-color(danger);
-
-      &:hover {
-        @include bg-color(danger);
-      }
-    }
-  }
-}
+// Menu styling is handled by the Popover component and role-based selectors
+// The [role="menu"] and [role="menuitem"] selectors in .segments-table handle the styling
