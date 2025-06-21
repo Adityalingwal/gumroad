@@ -3,7 +3,133 @@
 }
 
 .segments-table {
-  @extend .table;
+  border-spacing: 0;
+  width: 100%;
+  display: grid;
+  gap: spacer(4);
+
+  & > * {
+    display: block;
+  }
+
+  & > thead {
+    display: none;
+  }
+
+  & > thead,
+  & > tbody,
+  & > tfoot {
+    & > * > * {
+      padding: spacer(4);
+      text-align: left;
+      vertical-align: middle;
+    }
+  }
+
+  &[aria-busy="true"] {
+    & > tbody,
+    & > tfoot {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  & > tbody,
+  & > tfoot {
+    display: contents;
+
+    & > * {
+      display: block;
+      border: $border;
+      border-radius: border-radius(1);
+
+      &[aria-selected]:hover,
+      &[aria-selected="true"] {
+        cursor: pointer;
+        background-color: var(--active-bg);
+      }
+
+      & > * {
+        display: block;
+
+        &:not(:first-child) {
+          border-top: $border;
+        }
+
+        &[data-label]:before {
+          display: block;
+          font-weight: bold;
+          margin-bottom: spacer(2);
+          content: attr(data-label);
+        }
+      }
+    }
+
+    @include breakpoint-up(lg, true) {
+      &,
+      & > * {
+        display: revert;
+      }
+
+      & > thead,
+      & > tbody,
+      & > tfoot {
+        &,
+        & > *,
+        & > * > * {
+          display: revert;
+          border: none;
+        }
+      }
+
+      & > tbody,
+      & > tfoot {
+        & > * > * {
+          border-top: $border;
+
+          &:first-child {
+            border-left: $border;
+          }
+
+          &:last-child {
+            border-right: $border;
+          }
+
+          &[data-label]:before {
+            display: none;
+          }
+        }
+
+        &:last-child > tr:last-child > * {
+          border-bottom: $border;
+        }
+      }
+
+      & > tbody > :first-child {
+        & > :first-child {
+          border-top-left-radius: border-radius(1);
+        }
+
+        & > :last-child {
+          border-top-right-radius: border-radius(1);
+        }
+      }
+
+      & > :last-child > :last-child {
+        & > :first-child {
+          border-bottom-left-radius: border-radius(1);
+        }
+
+        & > :last-child {
+          border-bottom-right-radius: border-radius(1);
+        }
+      }
+    }
+  }
+
+  & > tbody > * {
+    @include bg-color(filled);
+  }
 
   @include breakpoint-up(lg) {
     tbody tr {
@@ -69,14 +195,20 @@
       }
 
       [role="menuitem"] {
-        @extend %button;
+        background: transparent;
+        @include font-size(2);
+        padding: spacer(3) spacer(4);
+        border: $border;
+        color: currentColor;
+        border-radius: border-radius(1);
+        font-family: inherit;
         display: flex;
         align-items: center;
-        width: 100%;
+        justify-content: center;
         gap: spacer(3);
-        padding: spacer(3) spacer(4);
-        border: none;
-        border-radius: border-radius(1);
+        cursor: pointer;
+        text-decoration: none;
+        width: 100%;
 
         > .icon {
           margin-right: 0;
@@ -91,9 +223,14 @@
 }
 
 .segments-placeholder {
-  @extend .placeholder;
+  border: dashed $border-width $border-color;
+  border-radius: border-radius(1);
   padding: spacer(8);
+  @include bg-color(filled);
+  gap: spacer(3);
+  display: grid;
   text-align: center;
+  justify-items: center;
 
   h2 {
     @include font-size(4);
