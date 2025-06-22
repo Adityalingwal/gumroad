@@ -34,6 +34,7 @@ export const SegmentForm: React.FC<SegmentFormProps> = ({ isEdit = false }) => {
   const [segmentName, setSegmentName] = React.useState("");
   const [contacts] = React.useState(1302);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +52,22 @@ export const SegmentForm: React.FC<SegmentFormProps> = ({ isEdit = false }) => {
     const from = getFromState(location.state) || "/emails/segments";
     navigate(from);
   };
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && event.target instanceof Node && !dropdownRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    if (isFilterOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isFilterOpen]);
 
   return (
     <div className="segment-form-page min-h-screen bg-white">
@@ -143,27 +160,40 @@ export const SegmentForm: React.FC<SegmentFormProps> = ({ isEdit = false }) => {
                   Add filter
                 </button>
                 {isFilterOpen ? (
-                  <div className="border-gray-200 absolute left-1/2 top-20 z-10 mt-2 w-48 -translate-x-1/2 rounded border bg-white shadow-lg">
-                    <ul>
-                      <li className="flex cursor-pointer items-center gap-2 px-4 py-2">
-                        <Icon name="calendar-all" style={{ width: "16px", height: "16px" }} />
-                        Date
+                  <div
+                    ref={dropdownRef}
+                    className="border-gray-200 absolute left-1/2 top-20 z-10 mt-2 w-48 -translate-x-1/2 rounded border bg-white shadow-lg"
+                  >
+                    <ul className="py-1">
+                      <li className="block cursor-pointer hover:bg-black hover:text-white">
+                        <div className="flex items-center gap-2 px-4 py-2">
+                          <Icon name="calendar-all" style={{ width: "16px", height: "16px" }} />
+                          <span>Date</span>
+                        </div>
                       </li>
-                      <li className="flex cursor-pointer items-center gap-2 px-4 py-2">
-                        <Icon name="outline-mail-open" style={{ width: "16px", height: "16px" }} />
-                        Email
+                      <li className="block cursor-pointer hover:bg-black hover:text-white">
+                        <div className="flex items-center gap-2 px-4 py-2">
+                          <Icon name="outline-mail-open" style={{ width: "16px", height: "16px" }} />
+                          <span>Email</span>
+                        </div>
                       </li>
-                      <li className="flex cursor-pointer items-center gap-2 px-4 py-2">
-                        <Icon name="outline-shopping-bag" style={{ width: "16px", height: "16px" }} />
-                        Product
+                      <li className="block cursor-pointer hover:bg-black hover:text-white">
+                        <div className="flex items-center gap-2 px-4 py-2">
+                          <Icon name="outline-shopping-bag" style={{ width: "16px", height: "16px" }} />
+                          <span>Product</span>
+                        </div>
                       </li>
-                      <li className="flex cursor-pointer items-center gap-2 px-4 py-2">
-                        <Icon name="outline-credit-card" style={{ width: "16px", height: "16px" }} />
-                        Payment
+                      <li className="block cursor-pointer hover:bg-black hover:text-white">
+                        <div className="flex items-center gap-2 px-4 py-2">
+                          <Icon name="outline-credit-card" style={{ width: "16px", height: "16px" }} />
+                          <span>Payment</span>
+                        </div>
                       </li>
-                      <li className="flex cursor-pointer items-center gap-2 px-4 py-2">
-                        <Icon name="globe" style={{ width: "16px", height: "16px" }} />
-                        Location
+                      <li className="block cursor-pointer hover:bg-black hover:text-white">
+                        <div className="flex items-center gap-2 px-4 py-2">
+                          <Icon name="globe" style={{ width: "16px", height: "16px" }} />
+                          <span>Location</span>
+                        </div>
                       </li>
                     </ul>
                   </div>
