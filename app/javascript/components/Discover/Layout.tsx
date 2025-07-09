@@ -206,7 +206,9 @@ export const Layout: React.FC<{
           />
         ) : null}
       </header>
-      {children}
+      <div className="discover-content">
+        {children}
+      </div>
     </main>
   );
 };
@@ -246,3 +248,5 @@ const TaxonomyCategoryBreadcrumbs = ({
     </ol>
   </div>
 );
+
+export default Layout;

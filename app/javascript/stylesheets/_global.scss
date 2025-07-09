@@ -308,3 +308,53 @@ meter {
 .profiler-results * {
   max-width: unset;
 }
+
+// Dynamic content styles for discover page
+// These are necessary because the content comes through children props
+// and we cannot apply Tailwind classes directly to those elements
+.discover-content {
+  section.carousel-section {
+    display: grid;
+    gap: 1rem;
+
+    > header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        button {
+          font-size: 1.25em;
+        }
+      }
+    }
+  }
+
+  .carousel > .items {
+    align-items: stretch;
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1.25rem;
+    grid-auto-columns: min(20rem, 60vw);
+    min-height: 24rem;
+    padding-bottom: 0.25rem;
+
+    figure {
+      aspect-ratio: 1;
+    }
+
+    @include breakpoint-up(lg) {
+      grid-auto-columns: 40rem;
+    }
+  }
+
+  .product-cta {
+    @include breakpoint-up(md) {
+      padding: 2rem;
+    }
+  }
+}

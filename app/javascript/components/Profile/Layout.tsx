@@ -24,10 +24,12 @@ export const Layout = ({ className, creatorProfile, hideFollowForm, children }: 
   const { rootDomain } = useDomains();
   const loggedInUser = useLoggedInUser();
 
+  const isReader = className?.includes("reader");
+
   return (
-    <div className={cx("profile", className)}>
-      <header>
-        <section>
+    <div className={cx("profile grid grid-rows-[auto_1fr] min-h-full", className)}>
+      <header className="text-base grid grid-cols-1 lg:grid-flow-col lg:gap-6 lg:px-[max((100%-71.25rem)/2,2rem)] lg:py-5 lg:items-center lg:border-b lg:border-current/[var(--border-alpha)]">
+        <section className="flex items-center gap-3 border-b border-current/[var(--border-alpha)] p-4 lg:border-0 lg:p-0">
           {(loggedInUser?.isGumroadAdmin || loggedInUser?.isImpersonating) &&
           creatorProfile.external_id !== loggedInUser.id ? (
             <NavigationButton
@@ -44,12 +46,12 @@ export const Layout = ({ className, creatorProfile, hideFollowForm, children }: 
           </a>
         </section>
         {!hideFollowForm ? (
-          <section>
+          <section className="flex items-center gap-3 border-b border-current/[var(--border-alpha)] p-4 col-span-2 lg:border-0 lg:p-0 lg:row-auto lg:col-auto">
             <FollowForm creatorProfile={creatorProfile} />
           </section>
         ) : null}
         {creatorProfile.twitter_handle || cartItemsCount ? (
-          <section className="links">
+          <section className="flex items-center gap-3 border-b border-current/[var(--border-alpha)] p-4 row-[1] col-[2] lg:border-0 lg:p-0 lg:row-auto lg:col-auto">
             {creatorProfile.twitter_handle ? (
               <NavigationButton outline href={`https://twitter.com/${creatorProfile.twitter_handle}`} target="_blank">
                 <Icon name="twitter" />
@@ -59,9 +61,11 @@ export const Layout = ({ className, creatorProfile, hideFollowForm, children }: 
           </section>
         ) : null}
       </header>
-      <main className="custom-sections">
-        {children}
-        <footer>
+      <main className={cx("custom-sections", isReader && "reader")}>
+        <div className={isReader ? "lg:pr-[max((100%-50rem)-2rem,2rem)]" : ""}>
+          {children}
+        </div>
+        <footer className="lg:px-[max((100%-71.25rem)/2,2rem)] lg:py-5 lg:text-left">
           Powered by&ensp;
           <a href={Routes.root_url({ host: rootDomain })} className="logo-full" aria-label="Gumroad" />
         </footer>
@@ -69,3 +73,5 @@ export const Layout = ({ className, creatorProfile, hideFollowForm, children }: 
     </div>
   );
 };
+
+export default Layout;
