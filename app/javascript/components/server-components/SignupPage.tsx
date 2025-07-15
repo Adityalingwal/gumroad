@@ -6,9 +6,9 @@ import { formatPrice } from "$app/utils/price";
 import { assertResponseError } from "$app/utils/request";
 import { register } from "$app/utils/serverComponentUtil";
 
-import { Layout } from "$app/components/Authentication/Layout";
 import { SocialAuth } from "$app/components/Authentication/SocialAuth";
 import { Button } from "$app/components/Button";
+import { OnboardingPage } from "$app/components/OnboardingPage";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 import { RecaptchaCancelledError, useRecaptcha } from "$app/components/useRecaptcha";
 
@@ -62,7 +62,7 @@ export const SignupPage = ({
   };
 
   return (
-    <Layout
+    <OnboardingPage
       header={
         <>
           <div className="actions">
@@ -117,7 +117,7 @@ export const SignupPage = ({
         </section>
       </form>
       {recaptcha.container}
-    </Layout>
+    </OnboardingPage>
   );
 };
 

@@ -5,8 +5,8 @@ import { resendTwoFactorToken, twoFactorLogin } from "$app/data/login";
 import { assertResponseError } from "$app/utils/request";
 import { register } from "$app/utils/serverComponentUtil";
 
-import { Layout } from "$app/components/Authentication/Layout";
 import { Button } from "$app/components/Button";
+import { OnboardingPage } from "$app/components/OnboardingPage";
 import { showAlert } from "$app/components/server-components/Alert";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 
@@ -51,7 +51,7 @@ export const TwoFactorAuthenticationPage = ({
   };
 
   return (
-    <Layout
+    <OnboardingPage
       header={
         <>
           <h1>Two-Factor Authentication</h1>
@@ -82,7 +82,7 @@ export const TwoFactorAuthenticationPage = ({
           </Button>
         </section>
       </form>
-    </Layout>
+    </OnboardingPage>
   );
 };
 
