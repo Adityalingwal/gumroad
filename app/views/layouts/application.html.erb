@@ -1,34 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
   <%= render("layouts/application/head") %>
-  <% bclass = ["group", "grid", "grid-cols-1", "grid-rows-1"] %>
+  <% bclass = ["group/body"] %>
   <% bclass.push "mac" if request.headers["User-Agent"]&.include? "Macintosh" %>
   <% bclass.push(@body_class) if @body_class %>
   <% show_nav = !@hide_layouts && user_signed_in? %>
   <% bclass.push("sidebar-nav") if show_nav %>
-  <% bclass.push("iframe", "bg-transparent", "overflow-hidden") if params[:as_embed] %>
   <% custom_context = RenderingExtension.custom_context(self) %>
   <body id="<%= @body_id %>" class="<%= bclass.join(" ") %>" style="<%= params[:as_embed] && "background: transparent" %>">
-    <%= react_component "MainLayout", prerender: true, props: {
-        nav: (show_nav ? react_component("Nav", props: { title: @title }, prerender: true) : nil),
-        bodyClassName: "[&>header]:border-b [&>header]:border-current/[var(--border-alpha)] [&>header]:col-span-2 [&>header]:row-[-3] [&>footer]:p-4 [&>footer]:text-center",
-        children: capture do %>
-          <div id="design-settings" data-settings="<%= custom_context[:design_settings].to_json %>" style="display: none;"></div>
-          <div id="user-agent-info" data-settings="<%= custom_context[:user_agent_info].to_json %>" style="display: none;"></div>
-          <%= render("layouts/shared/flash") %>
-          <main class="overflow-auto col-span-1 row-span-1 print:overflow-initial [&>*]:p-4 lg:[&>*]:px-[max((100%-71.25rem)/2,2rem)] lg:[&>*]:py-8 lg:[&>.sidebar-nav_*]:pl-8 lg:[&>.sidebar-nav_*]:pr-[max(100%-71.25rem-2rem,2rem)] [&>*:not(:first-child)]:border-t [&>*:not(:first-child)]:border-current/[var(--border-alpha)] [&>footer]:text-center [&>a]:py-7">
-            <%= content_for?(:content) ? yield(:content) : yield %>
-          </main>
-          <% if content_for? :footer %>
-            <footer class="p-4 text-center">
-              <%= yield :footer %>
-            </footer>
-          <% end %>
-          <%= javascript_include_tag "application" %>
-          <%= load_pack("base") unless @hide_layouts %>
-          <%= yield :script %>
-          <%= render("layouts/shared/helper_widget") %>
-        <% end %>
-      } %>
+    <div id="design-settings" data-settings="<%= custom_context[:design_settings].to_json %>" style="display: none;"></div>
+    <div id="user-agent-info" data-settings="<%= custom_context[:user_agent_info].to_json %>" style="display: none;"></div>
+    <%= render("layouts/shared/flash") %>
+    <% if show_nav %>
+      <%= react_component "Nav", props: { title: @title }, prerender: true %>
+    <% end %>
+    <%= content_for?(:content) ? yield(:content) : yield %>
+    <% if content_for? :footer %>
+      <footer>
+        <%= yield :footer %>
+      </footer>
+    <% end %>
+    <%= javascript_include_tag "application" %>
+    <%= load_pack("base") unless @hide_layouts %>
+    <%= yield :script %>
+    <%= render("layouts/shared/helper_widget") %>
   </body>
 </html>

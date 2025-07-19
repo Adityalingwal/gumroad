@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="admin" lang="en">
   <%= render("layouts/admin/head") %>
-  <% bclass = ["grid", "grid-cols-1", "grid-rows-1"] %>
+  <% bclass = [] %>
   <% bclass.push(@body_class) if @body_class %>
   <% bclass.push("responsive") %>
   <% bclass.push("responsive-nav") %>
@@ -9,26 +9,21 @@
   <% bclass.push("is-nav-visible") %>
   <% bclass.push("sidebar-nav") %>
   <body class="<%= bclass.join(" ") %>" id="<%= @body_id %>">
-    <%= react_component "MainLayout", prerender: true, props: {
-        nav: react_component("AdminNav", props: { title: @title, current_user: current_user_props(current_user, impersonated_user) }, prerender: true),
-        bodyClassName: "[&>header]:border-b [&>header]:border-current/[var(--border-alpha)] [&>header]:col-span-2 [&>header]:row-[-3] [&>footer]:p-4 [&>footer]:text-center",
-        header: capture do %>
-          <header class="p-4 lg:px-[max((100%-71.25rem)/2,2rem)] lg:py-8 pt-6 pb-6 grid grid-cols-[1fr_auto] items-center gap-4 gap-x-3 [&>*]:col-[1/-1] [&_h1]:col-end-auto [&_.actions]:grid [&_.actions]:grid-cols-[repeat(auto-fit,minmax(min(50%-0.75rem,(31.25rem-100%)*1000),1fr))] [&_.actions]:gap-3 lg:[&_.actions]:col-[2] lg:[&_.actions]:grid-cols-[unset] lg:[&_.actions]:grid-flow-col">
-            <h1><%= @title %></h1>
-            <div class="actions">
-              <%= react_component "AdminSearchPopover", props: { card_types: card_types_for_react }, prerender: true %>
-            </div>
-          </header>
-        <% end,
-        children: capture do %>
-          <%= render("layouts/shared/flash") %>
-          <main class="overflow-auto col-span-1 row-span-1 print:overflow-initial [&>*]:p-4 lg:[&>*]:px-[max((100%-71.25rem)/2,2rem)] lg:[&>*]:py-8 lg:[&>.sidebar-nav_*]:pl-8 lg:[&>.sidebar-nav_*]:pr-[max(100%-71.25rem-2rem,2rem)] [&>*:not(:first-child)]:border-t [&>*:not(:first-child)]:border-current/[var(--border-alpha)] [&>footer]:text-center [&>a]:py-7">
-            <%= yield %>
-          </main>
-          <%= javascript_include_tag "application" %>
-          <%= load_pack("admin") %>
-          <%= yield :script %>
-        <% end %>
-      } %>
+    <%= render("layouts/shared/flash") %>
+    <%= react_component "AdminNav", props: { title: @title, current_user: current_user_props(current_user, impersonated_user) }, prerender: true %>
+
+    <main>
+      <header>
+        <h1><%= @title %></h1>
+        <div class="actions">
+          <%= react_component "AdminSearchPopover", props: { card_types: card_types_for_react }, prerender: true %>
+        </div>
+      </header>
+      <%= yield %>
+    </main>
+
+    <%= javascript_include_tag "application" %>
+    <%= load_pack("admin") %>
+    <%= yield :script %>
   </body>
 </html>
