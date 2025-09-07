@@ -6,7 +6,7 @@ import { assertResponseError } from "$app/utils/request";
 import { register } from "$app/utils/serverComponentUtil";
 
 import { ForgotPasswordForm } from "$app/components/Authentication/ForgotPasswordForm";
-import { Layout } from "$app/components/Authentication/Layout";
+import { OnboardingPage } from "$app/components/Authentication/OnboardingPage";
 import { SocialAuth } from "$app/components/Authentication/SocialAuth";
 import { Button } from "$app/components/Button";
 import { PasswordInput } from "$app/components/PasswordInput";
@@ -53,7 +53,7 @@ export const LoginPage = ({
   };
 
   return (
-    <Layout
+    <OnboardingPage
       header={
         <>
           <div className="actions">
@@ -115,7 +115,7 @@ export const LoginPage = ({
         </form>
       )}
       {recaptcha.container}
-    </Layout>
+    </OnboardingPage>
   );
 };
 

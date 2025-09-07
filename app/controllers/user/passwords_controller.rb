@@ -16,7 +16,6 @@ class User::PasswordsController < Devise::PasswordsController
 
   def edit
     @hide_layouts = true
-    @body_class = "onboarding-page"
 
     @reset_password_token = params[:reset_password_token]
     @user = User.find_or_initialize_with_error_by(:reset_password_token,
@@ -31,7 +30,6 @@ class User::PasswordsController < Devise::PasswordsController
 
   def update
     @hide_layouts = true
-    @body_class = "onboarding-page"
 
     @reset_password_token = params[:user][:reset_password_token]
     @user = User.reset_password_by_token(params[:user])

@@ -5,40 +5,13 @@ import { sendMagicLink } from "$app/data/subscription_magic_link";
 import { assertResponseError } from "$app/utils/request";
 import { register } from "$app/utils/serverComponentUtil";
 
+import { OnboardingPage } from "$app/components/Authentication/OnboardingPage";
 import { Button } from "$app/components/Button";
 import { LoadingSpinner } from "$app/components/LoadingSpinner";
 import { showAlert } from "$app/components/server-components/Alert";
 import { useOriginalLocation } from "$app/components/useOriginalLocation";
 
 type UserEmail = { email: string; source: string };
-
-type LayoutProps = {
-  title: string;
-  body: string;
-  handleSendMagicLink: () => Promise<void>;
-  children: React.ReactNode;
-};
-const Layout = ({ title, body, handleSendMagicLink, children }: LayoutProps) => (
-  <main className="squished">
-    <header>
-      <a className="logo-full" href={Routes.root_path()} />
-
-      <div className="actions">
-        <a href={Routes.login_path()}>Log in</a>
-      </div>
-      <h1>{title}</h1>
-      <h3>{body}</h3>
-    </header>
-    <form
-      onSubmit={(evt) => {
-        evt.preventDefault();
-        void handleSendMagicLink();
-      }}
-    >
-      <section>{children}</section>
-    </form>
-  </main>
-);
 
 type SubscriptionManagerMagicLinkProps = {
   product_name: string;
@@ -75,61 +48,91 @@ const SubscriptionManagerMagicLink = ({
   };
 
   return hasSentEmail ? (
-    <Layout
-      title={`We've sent a link to ${selectedUserEmail.email}.`}
-      body={`Please check your inbox and click the link in your email to manage your ${subscriptionEntity}.`}
-      handleSendMagicLink={handleSendMagicLink}
-    >
-      <p>
-        {user_emails.length > 1 ? (
-          <>
-            Can't see the email? Please check your spam folder.{" "}
-            <button className="link" onClick={() => setHasSentEmail(false)}>
-              Click here to choose another email
-            </button>{" "}
-            or try resending the link below.
-          </>
-        ) : (
-          "Can't see the email? Please check your spam folder or try resending the link below."
-        )}
-      </p>
-      <Button color="primary" type="submit" disabled={loading}>
-        {loading ? <LoadingSpinner /> : null}
-        Resend magic link
-      </Button>
-    </Layout>
-  ) : (
-    <Layout
-      title={invalid ? "Your magic link has expired." : "You're currently not signed in."}
-      body={
-        user_emails.length > 1
-          ? `To manage your ${subscriptionEntity} for ${product_name}, choose one of the emails associated with your account to receive a magic link.`
-          : `To manage your ${subscriptionEntity} for ${product_name}, click the button below to receive a magic link at ${selectedUserEmail.email}`
+    <OnboardingPage
+      header={
+        <>
+          <div className="actions">
+            <a href={Routes.login_path()}>Log in</a>
+          </div>
+          <h1>We've sent a link to {selectedUserEmail.email}.</h1>
+          <h3>Please check your inbox and click the link in your email to manage your {subscriptionEntity}.</h3>
+        </>
       }
-      handleSendMagicLink={handleSendMagicLink}
     >
-      {user_emails.length > 1 ? (
-        <fieldset>
-          <legend>Choose an email</legend>
-          {user_emails.map((userEmail) => (
-            <label key={userEmail.source}>
-              <input
-                type="radio"
-                name="email_source"
-                value={userEmail.source}
-                onChange={() => setSelectedUserEmail(userEmail)}
-                checked={userEmail === selectedUserEmail}
-              />
-              {userEmail.email}
-            </label>
-          ))}
-        </fieldset>
-      ) : null}
-      <Button color="primary" type="submit" disabled={loading}>
-        {loading ? <LoadingSpinner /> : null}
-        Send magic link
-      </Button>
-    </Layout>
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          void handleSendMagicLink();
+        }}
+      >
+        <section>
+          <p>
+            {user_emails.length > 1 ? (
+              <>
+                Can't see the email? Please check your spam folder.{" "}
+                <button className="link" onClick={() => setHasSentEmail(false)}>
+                  Click here to choose another email
+                </button>{" "}
+                or try resending the link below.
+              </>
+            ) : (
+              "Can't see the email? Please check your spam folder or try resending the link below."
+            )}
+          </p>
+          <Button color="primary" type="submit" disabled={loading}>
+            {loading ? <LoadingSpinner /> : null}
+            Resend magic link
+          </Button>
+        </section>
+      </form>
+    </OnboardingPage>
+  ) : (
+    <OnboardingPage
+      header={
+        <>
+          <div className="actions">
+            <a href={Routes.login_path()}>Log in</a>
+          </div>
+          <h1>{invalid ? "Your magic link has expired." : "You're currently not signed in."}</h1>
+          <h3>
+            {user_emails.length > 1
+              ? `To manage your ${subscriptionEntity} for ${product_name}, choose one of the emails associated with your account to receive a magic link.`
+              : `To manage your ${subscriptionEntity} for ${product_name}, click the button below to receive a magic link at ${selectedUserEmail.email}`}
+          </h3>
+        </>
+      }
+    >
+      <form
+        onSubmit={(evt) => {
+          evt.preventDefault();
+          void handleSendMagicLink();
+        }}
+      >
+        <section>
+          {user_emails.length > 1 ? (
+            <fieldset>
+              <legend>Choose an email</legend>
+              {user_emails.map((userEmail) => (
+                <label key={userEmail.source}>
+                  <input
+                    type="radio"
+                    name="email_source"
+                    value={userEmail.source}
+                    onChange={() => setSelectedUserEmail(userEmail)}
+                    checked={userEmail === selectedUserEmail}
+                  />
+                  {userEmail.email}
+                </label>
+              ))}
+            </fieldset>
+          ) : null}
+          <Button color="primary" type="submit" disabled={loading}>
+            {loading ? <LoadingSpinner /> : null}
+            Send magic link
+          </Button>
+        </section>
+      </form>
+    </OnboardingPage>
   );
 };
 
